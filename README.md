@@ -23,7 +23,7 @@ Urban fleet operators managing multiple vehicles, routes, and deliveries lack a 
 
 ## 💡 Solution
 
-Urban Fleet Intelligence Copilot is an AI-powered fleet management platform that ingests structured CSV trip data, runs an ML risk-scoring pipeline across every vehicle and trip, and surfaces prioritised recommendations through an interactive dashboard and a natural-language AI Copilot. Fleet managers upload a single CSV file to instantly receive risk scores, delay analytics, fuel efficiency breakdowns, and actionable route optimisation advice — all powered by a FastAPI ML service and an Express + MySQL backend, with IBM Bob embedded as the AI Copilot interface.
+Urban Fleet Intelligence Copilot is an AI-powered fleet management platform that ingests structured CSV trip data, runs an ML risk-scoring pipeline across every vehicle and trip, and surfaces prioritised recommendations through an interactive dashboard and a natural-language AI Copilot. Fleet managers upload a single CSV file to instantly receive risk scores, delay analytics, fuel efficiency breakdowns, and actionable route optimisation advice — all powered by a FastAPI ML service and an Express + MySQL backend, with the AI Copilot interface.
 
 ---
 
