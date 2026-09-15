@@ -7,6 +7,7 @@ import EmptyState from '../components/EmptyState';
 import type { TripStatus, RiskLevel } from '../data/mockData';
 import { fetchTrips } from '../data/api';
 import { useApi } from '../utils/useApi';
+import { useDataRefresh } from '../context/DataRefreshContext';
 import { tripStatusBadge, riskBadge } from '../utils/badges';
 import styles from './Trips.module.css';
 
@@ -15,7 +16,8 @@ type RiskFilter   = 'all' | RiskLevel;
 
 export default function Trips() {
   const navigate = useNavigate();
-  const { data: trips, loading } = useApi(() => fetchTrips({ limit: '100' }));
+  const { refreshKey } = useDataRefresh();
+  const { data: trips, loading } = useApi(() => fetchTrips({ limit: '100' }), refreshKey);
   const [search,     setSearch]     = useState('');
   const [statusFilter, setStatus]   = useState<StatusFilter>('all');
   const [riskFilter,   setRisk]     = useState<RiskFilter>('all');
@@ -122,7 +124,7 @@ export default function Trips() {
                 <th>Origin → Destination</th>
                 <th>Status</th>
                 <th>Risk</th>
-                <th>Delivery</th>
+                <th>Fuel Used</th>
                 <th>Start</th>
                 <th>ETA</th>
                 <th>Distance</th>
@@ -131,12 +133,8 @@ export default function Trips() {
             </thead>
             <tbody>
               {filtered.map(t => {
-                const ts  = tripStatusBadge(t.status);
-                const rb  = riskBadge(t.risk);
-                const det = tripDetails[t.id];
-                const delivPct = det
-                  ? Math.round((det.deliveredPackages / det.totalPackages) * 100)
-                  : null;
+                const ts = tripStatusBadge(t.status);
+                const rb = riskBadge(t.risk);
                 return (
                   <tr
                     key={t.id}
@@ -154,24 +152,12 @@ export default function Trips() {
                     <td><Badge {...ts} /></td>
                     <td><Badge {...rb} /></td>
                     <td>
-                      {det ? (
-                        <div className={styles.deliveryWrap}>
-                          <div className={styles.deliveryBar}>
-                            <div
-                              className={styles.deliveryFill}
-                              style={{
-                                width: `${delivPct}%`,
-                                background: delivPct === 100 ? 'var(--success)' : t.status === 'delayed' ? 'var(--warning)' : 'var(--accent)',
-                              }}
-                            />
-                          </div>
-                          <span className={styles.deliveryPct} style={{ color: delivPct === 100 ? 'var(--success)' : 'var(--text-secondary)' }}>
-                            {det.deliveredPackages}/{det.totalPackages}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className={styles.muted}>—</span>
-                      )}
+                      <span style={{
+                        color: t.fuelUsed > 0 ? 'var(--text-primary)' : 'var(--text-muted)',
+                        fontSize: 12,
+                      }}>
+                        {t.fuelUsed > 0 ? `${t.fuelUsed} L` : '—'}
+                      </span>
                     </td>
                     <td className={styles.muted}>{t.startTime}</td>
                     <td className={styles.muted}>{t.eta}</td>

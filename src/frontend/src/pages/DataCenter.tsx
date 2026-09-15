@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback, type DragEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Upload, FileText, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, Database, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useDataRefresh } from '../context/DataRefreshContext';
 import styles from './DataCenter.module.css';
 
 const BASE_URL: string = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000';
@@ -116,6 +118,8 @@ function riskColor(level: string) {
 
 export default function DataCenter() {
   const { token } = useAuth();
+  const { triggerRefresh } = useDataRefresh();
+  const navigate = useNavigate();
 
   const [dragging,   setDragging]   = useState(false);
   const [file,       setFile]       = useState<File | null>(null);
@@ -189,6 +193,10 @@ export default function DataCenter() {
         return;
       }
       setResult(json.data!);
+      // Signal all pages to re-fetch their data from the freshly populated DB
+      triggerRefresh();
+      // Brief pause so the success banner is visible, then redirect to Dashboard
+      setTimeout(() => navigate('/'), 2200);
     } catch (err) {
       setImportErr(String(err));
     } finally {
@@ -398,9 +406,9 @@ export default function DataCenter() {
           <div className={styles.resultHeader}>
             <CheckCircle2 size={20} className={styles.successIcon} />
             <div>
-              <div className={styles.resultTitle}>Import Successful</div>
+              <div className={styles.resultTitle}>Import Successful — Redirecting to Dashboard…</div>
               <div className={styles.resultSub}>
-                {result.rows_imported} trip(s) imported · {result.validation_errors.length} row(s) skipped
+                {result.rows_imported} trip(s) imported · {result.validation_errors.length} row(s) skipped · Dashboard refreshes automatically in 2 seconds
               </div>
             </div>
           </div>

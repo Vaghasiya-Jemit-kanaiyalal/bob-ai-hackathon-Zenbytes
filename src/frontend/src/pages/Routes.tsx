@@ -15,6 +15,7 @@ import EmptyState from '../components/EmptyState';
 import type { Route } from '../data/mockData';
 import { fetchRoutes } from '../data/api';
 import { useApi } from '../utils/useApi';
+import { useDataRefresh } from '../context/DataRefreshContext';
 import { routeStatusColor } from '../utils/badges';
 import styles from './Routes.module.css';
 
@@ -47,7 +48,8 @@ function sortRoutes(list: Route[], key: SortKey, dir: SortDir): Route[] {
 
 export default function RoutesPage() {
   const navigate = useNavigate();
-  const { data: routes, loading } = useApi(fetchRoutes);
+  const { refreshKey } = useDataRefresh();
+  const { data: routes, loading } = useApi(fetchRoutes, refreshKey);
   const radarData = makeRadarData(routes ?? []);
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<StatusFilter>('all');
@@ -133,7 +135,7 @@ export default function RoutesPage() {
         <Card title="Daily Trips & Active Vehicles by Route" className={styles.barCard}>
           <div className={styles.chartWrap}>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={routes} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
+              <BarChart data={routes ?? []} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="id" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />

@@ -16,15 +16,17 @@ import {
   fetchMlScores,
 } from '../data/api';
 import { useApi } from '../utils/useApi';
+import { useDataRefresh } from '../context/DataRefreshContext';
 import { riskBadge, statusBadge, tripStatusBadge } from '../utils/badges';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard() {
-  const { data: kpiData, loading: kpiLoading } = useApi(fetchKpi);
-  const { data: vehicles, loading: vLoading }  = useApi(() => fetchVehicles());
-  const { data: trips,    loading: tLoading }  = useApi(() => fetchTrips({ limit: '20' }));
-  const { data: routes,   loading: rLoading }  = useApi(fetchRoutes);
-  const { data: mlScores }                     = useApi(() => fetchMlScores({ entity_type: 'vehicle' }));
+  const { refreshKey } = useDataRefresh();
+  const { data: kpiData, loading: kpiLoading } = useApi(fetchKpi, refreshKey);
+  const { data: vehicles, loading: vLoading }  = useApi(() => fetchVehicles(), refreshKey);
+  const { data: trips,    loading: tLoading }  = useApi(() => fetchTrips({ limit: '20' }), refreshKey);
+  const { data: routes,   loading: rLoading }  = useApi(fetchRoutes, refreshKey);
+  const { data: mlScores }                     = useApi(() => fetchMlScores({ entity_type: 'vehicle' }), refreshKey);
 
   const loading = kpiLoading || vLoading || tLoading || rLoading;
   const noData  = !loading && !kpiData;

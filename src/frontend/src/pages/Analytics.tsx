@@ -1,6 +1,5 @@
 import Card from '../components/Card';
 import {
-  AreaChart, Area,
   BarChart, Bar,
   LineChart, Line,
   PieChart, Pie, Cell,
@@ -15,6 +14,7 @@ import {
   fetchMlScores,
 } from '../data/api';
 import { useApi } from '../utils/useApi';
+import { useDataRefresh } from '../context/DataRefreshContext';
 import MlScoresPanel from '../components/MlScoresPanel';
 import EmptyState from '../components/EmptyState';
 import styles from './Analytics.module.css';
@@ -51,11 +51,12 @@ function DonutLabel({ cx, cy, total }: { cx: number; cy: number; total: number }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Analytics() {
-  const { data: delayTrend,           loading: l1 } = useApi(fetchDelayTrend);
-  const { data: fuelConsumption,      loading: l2 } = useApi(fetchFuelConsumption);
-  const { data: riskDistributionRaw,  loading: l3 } = useApi(fetchRiskDistribution);
-  const { data: vehicleUtilization,   loading: l4 } = useApi(fetchVehicleUtilization);
-  const { data: mlScores,             loading: l5 } = useApi(() => fetchMlScores());
+  const { refreshKey } = useDataRefresh();
+  const { data: delayTrend,           loading: l1 } = useApi(fetchDelayTrend, refreshKey);
+  const { data: fuelConsumption,      loading: l2 } = useApi(fetchFuelConsumption, refreshKey);
+  const { data: riskDistributionRaw,  loading: l3 } = useApi(fetchRiskDistribution, refreshKey);
+  const { data: vehicleUtilization,   loading: l4 } = useApi(fetchVehicleUtilization, refreshKey);
+  const { data: mlScores,             loading: l5 } = useApi(() => fetchMlScores(), refreshKey);
 
   const riskDistribution = (riskDistributionRaw ?? []).map(d => ({
     ...d,
@@ -136,50 +137,35 @@ export default function Analytics() {
           ) : <EmptyState message="No delay data yet" />}
         </Card>
 
-        {/* 2. On-time + efficiency dual area */}
+        {/* 2. Fleet efficiency derived from real fuel + delay data */}
         <Card
-          title="Efficiency &amp; Risk Index — Today Hourly"
-          action={<span className={styles.chipMuted}>Live-ready</span>}
+          title="Fleet Efficiency by Route — Fuel vs On-Time"
+          action={<span className={styles.chipMuted}>From imported data</span>}
         >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={230}>
-              <AreaChart
-                data={[
-                  { time: '06:00', efficiency: 78, risk: 12 },
-                  { time: '07:00', efficiency: 74, risk: 18 },
-                  { time: '08:00', efficiency: 71, risk: 22 },
-                  { time: '09:00', efficiency: 76, risk: 19 },
-                  { time: '10:00', efficiency: 81, risk: 15 },
-                  { time: '11:00', efficiency: 83, risk: 11 },
-                  { time: '12:00', efficiency: 79, risk: 14 },
-                  { time: '13:00', efficiency: 77, risk: 16 },
-                  { time: '14:00', efficiency: 82, risk: 13 },
-                  { time: '15:00', efficiency: 85, risk: 10 },
-                  { time: '16:00', efficiency: 80, risk: 15 },
-                  { time: '17:00', efficiency: 72, risk: 21 },
-                ]}
-                margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
-              >
-                <defs>
-                  <linearGradient id="gEff" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--accent)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}   />
-                  </linearGradient>
-                  <linearGradient id="gRisk" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--danger)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="var(--danger)" stopOpacity={0}   />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="time" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Area type="monotone" dataKey="efficiency" name="Efficiency %" stroke="var(--accent)" fill="url(#gEff)"  strokeWidth={2} dot={false} />
-                <Area type="monotone" dataKey="risk"       name="Risk Index"  stroke="var(--danger)" fill="url(#gRisk)" strokeWidth={2} dot={false} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {fuelConsumption && fuelConsumption.length > 0 ? (
+            <div className={styles.chartWrap}>
+              <ResponsiveContainer width="100%" height={230}>
+                <BarChart
+                  data={fuelConsumption.slice(0, 8)}
+                  margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
+                >
+                  <defs>
+                    <linearGradient id="gFuel" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="var(--accent)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}   />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="day" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip {...tip} />
+                  <Legend wrapperStyle={legendStyle} />
+                  <Bar dataKey="consumed" name="Fuel Consumed (L)" fill="var(--accent)"  radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="saved"    name="Fuel Saved (L)"    fill="var(--success)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : <EmptyState message="No fuel efficiency data yet — import CSV to populate" />}
         </Card>
       </div>
 

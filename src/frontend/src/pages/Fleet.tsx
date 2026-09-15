@@ -12,6 +12,7 @@ import EmptyState from '../components/EmptyState';
 import type { Vehicle, VehicleStatus } from '../data/mockData';
 import { fetchVehicles } from '../data/api';
 import { useApi } from '../utils/useApi';
+import { useDataRefresh } from '../context/DataRefreshContext';
 import { riskBadge, statusBadge } from '../utils/badges';
 import styles from './Fleet.module.css';
 
@@ -36,7 +37,8 @@ function sortVehicles(list: Vehicle[], key: SortKey, dir: SortDir): Vehicle[] {
 
 export default function Fleet() {
   const navigate = useNavigate();
-  const { data: vehicles, loading } = useApi(() => fetchVehicles());
+  const { refreshKey } = useDataRefresh();
+  const { data: vehicles, loading } = useApi(() => fetchVehicles(), refreshKey);
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<FilterType>('all');
   const [sortKey, setSortKey] = useState<SortKey>('risk');
