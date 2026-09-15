@@ -1,45 +1,216 @@
-.page { display: flex; flex-direction: column; gap: 20px; }
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
 }
 
-.wide { grid-column: span 1; }
-.half { grid-column: span 1; }
+/* ── Section dividers ───────────────────────────────────────────────────── */
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 4px 2px 0;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
 
-.chartWrap { padding: 16px 20px; }
-
-.summaryRow {
+/* ── KPI strip ──────────────────────────────────────────────────────────── */
+.kpiStrip {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 12px;
 }
 
-.summaryTile {
+.kpiTile {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  transition: border-color 0.15s;
 }
 
-.summaryValue {
-  font-size: 26px;
+.kpiTile:hover {
+  border-color: var(--accent);
+}
+
+.kpiValue {
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.5px;
+  line-height: 1.1;
 }
 
-.summaryLabel {
+.kpiLabel {
   font-size: 12px;
   color: var(--text-secondary);
   font-weight: 500;
+  margin-top: 2px;
 }
 
-.summarySub {
+.kpiDelta {
+  font-size: 11px;
+  margin-top: 1px;
+}
+
+.kpiDeltaUp   { color: var(--success); }
+.kpiDeltaDown { color: var(--danger);  }
+
+/* ── Chart wrapper (inner padding) ─────────────────────────────────────── */
+.chartWrap {
+  padding: 16px 20px 20px;
+}
+
+/* ── Rows ───────────────────────────────────────────────────────────────── */
+
+/* 3-col left-wide: [2fr, 1fr] */
+.row3_1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+/* Even 2-col */
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Even 3-col */
+.row3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Span helpers */
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+
+/* ── Data chip on card header ───────────────────────────────────────────── */
+.chipMuted {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+/* ── Route efficiency score grid ────────────────────────────────────────── */
+.scoreGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 10px 4px 0;
+}
+
+.scoreChip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+
+.scoreRouteName {
   font-size: 11px;
   color: var(--text-muted);
+  font-weight: 500;
+}
+
+.scoreValue {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ── Risk donut layout ──────────────────────────────────────────────────── */
+.riskWrap {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 20px;
+  gap: 12px;
+}
+
+.riskLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 4px;
+}
+
+.riskLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.riskDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.riskName {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.riskCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── Responsive breakpoints ─────────────────────────────────────────────── */
+@media (max-width: 1280px) {
+  .kpiStrip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .row3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .row3 > :last-child {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 900px) {
+  .row3_1,
+  .row2,
+  .row3 {
+    grid-template-columns: 1fr;
+  }
+  .span2 { grid-column: span 1; }
+  .row3 > :last-child { grid-column: span 1; }
+  .kpiStrip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .scoreGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .kpiStrip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .scoreGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
