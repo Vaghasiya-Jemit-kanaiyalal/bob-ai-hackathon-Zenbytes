@@ -21,7 +21,7 @@ const suggestedQuestions = [
 ];
 
 const stubReplies: Record<string, string> = {
-  default: `I'm Bob, your Urban Fleet Intelligence Copilot. I can analyze route performance, flag high-risk vehicles, suggest optimizations, and provide real-time fleet insights.
+  default: `I'm Bob, your YatraDrishti AI Copilot. I can analyze route performance, flag high-risk vehicles, suggest optimizations, and provide real-time fleet insights.
 
 **AI integration is coming soon.** Once connected to IBM watsonx.ai, I'll provide live, data-driven recommendations based on your fleet's actual telemetry.
 
@@ -37,7 +37,7 @@ export default function Copilot() {
     {
       id: 0,
       role: 'assistant',
-      content: `👋 Hello! I'm **Bob**, your Urban Fleet Intelligence Copilot.
+      content: `👋 Hello! I'm **Bob**, your YatraDrishti AI Copilot.
 
 I help fleet operators identify inefficient routes, delayed vehicles, and high-risk trips — reducing travel time, fuel consumption, and delivery delays.
 

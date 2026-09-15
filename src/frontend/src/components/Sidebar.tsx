@@ -27,8 +27,8 @@ export default function Sidebar() {
           <Zap size={18} />
         </div>
         <div>
-          <div className={styles.brandName}>FleetIQ</div>
-          <div className={styles.brandSub}>Urban Intelligence</div>
+          <div className={styles.brandName}>YatraDrishti</div>
+          <div className={styles.brandSub}>Intelligence for Every Journey</div>
         </div>
       </div>
 
@@ -50,7 +50,7 @@ export default function Sidebar() {
 
       <div className={styles.footer}>
         <div className={styles.statusDot} />
-        <span>Live — NYC Fleet</span>
+        <span>Live — Fleet Active</span>
       </div>
     </aside>
   );

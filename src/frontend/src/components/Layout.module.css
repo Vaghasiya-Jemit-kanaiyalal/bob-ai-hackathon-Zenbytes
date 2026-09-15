@@ -1,19 +1,23 @@
-.shell {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
+/* ─── Layout shell for YatraDrishti top-nav layout ──────────────────────── */
 
-.main {
-  flex: 1;
+.shell {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  background: var(--bg);
 }
 
 .content {
   flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-  background: var(--bg);
+  padding: 28px 28px 12px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 16px 12px 8px;
+  }
 }

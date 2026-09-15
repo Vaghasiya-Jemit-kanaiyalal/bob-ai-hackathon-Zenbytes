@@ -40,7 +40,7 @@ function usePageInfo() {
       subtitle: t ? `${t.driver} · ${t.route} · ${t.origin} → ${t.destination}` : 'Trip details & delivery status',
     };
   }
-  return staticTitles[pathname] ?? { title: 'FleetIQ', subtitle: '' };
+  return staticTitles[pathname] ?? { title: 'YatraDrishti', subtitle: 'Intelligence for Every Journey' };
 }
 
 export default function Header() {
