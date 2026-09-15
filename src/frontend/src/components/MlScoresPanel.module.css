@@ -1,0 +1,133 @@
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chip {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  padding: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table thead tr {
+  background: var(--bg-surface);
+}
+
+.table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.table tbody tr:last-child { border-bottom: none; }
+.table tbody tr:hover { background: var(--bg-hover); }
+
+.table td {
+  padding: 8px 12px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Entity cell */
+.entityId {
+  display: block;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.entityType {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+/* Risk badge */
+.riskBadge {
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 2px 6px;
+  letter-spacing: 0.04em;
+}
+
+/* Score value + bar */
+.overallScore {
+  font-size: 13px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.scoreVal {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.barWrap {
+  height: 3px;
+  background: var(--bg-surface);
+  border-radius: 2px;
+  min-width: 48px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Factor cell */
+.factorCell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--text-secondary);
+}

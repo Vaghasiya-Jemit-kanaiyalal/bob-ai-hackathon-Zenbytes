@@ -9,6 +9,7 @@ import tripsRouter      from './routes/trips';
 import maintenanceRouter from './routes/maintenance';
 import analyticsRouter  from './routes/analytics';
 import riskRouter       from './routes/risk';
+import mlRouter         from './routes/ml';
 
 const app  = express();
 const PORT = parseInt(process.env.PORT ?? '4000', 10);
@@ -37,6 +38,7 @@ app.use('/api/trips',       tripsRouter);
 app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/analytics',   analyticsRouter);
 app.use('/api/risk',        riskRouter);
+app.use('/api/ml',          mlRouter);
 
 // ─── 404 catch-all ───────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -59,6 +61,10 @@ app.listen(PORT, async () => {
     console.warn(`⚠️   MySQL unavailable — API will return 500 for DB-backed endpoints.`);
     console.warn(`    Set DB_* vars in .env and restart to enable database access.`);
   }
+  const mlOk = await (await import('./mlClient')).checkMlHealth();
+  console.log(mlOk
+    ? `✅  ML service reachable (${process.env.ML_URL ?? 'http://localhost:5000'})`
+    : `⚠️   ML service offline — scoring endpoints will return 503 until it starts.`);
   console.log();
 });
 

@@ -14,7 +14,10 @@ import {
   kpiData as mockKpi, vehicles as mockVehicles, alerts,
   routes as mockRoutes, trips as mockTrips, efficiencyTrend,
 } from '../data/mockData';
-import { fetchKpi, fetchVehicles, fetchTrips, fetchRoutes } from '../data/api';
+import {
+  fetchKpi, fetchVehicles, fetchTrips, fetchRoutes,
+  fetchMlScores, mockMlScores,
+} from '../data/api';
 import { useApi } from '../utils/useApi';
 import { riskBadge, statusBadge, tripStatusBadge } from '../utils/badges';
 import styles from './Dashboard.module.css';
@@ -35,6 +38,7 @@ export default function Dashboard() {
   const { data: vehicles } = useApi(() => fetchVehicles(),                                     mockVehicles);
   const { data: trips }    = useApi(() => fetchTrips({ limit: '20' }),                         mockTrips);
   const { data: routes }   = useApi(fetchRoutes,                                               mockRoutes);
+  const { data: mlScores } = useApi(() => fetchMlScores({ entity_type: 'vehicle' }),           mockMlScores.filter(s => s.entity_type === 'vehicle'));
 
   const activeAlerts = alerts.filter(a => !a.acknowledged);
   const recentTrips = trips.slice(0, 6);
@@ -177,6 +181,7 @@ export default function Dashboard() {
                   <th>Route</th>
                   <th>Status</th>
                   <th>Risk</th>
+                  <th>ML Score</th>
                   <th>Speed</th>
                   <th>Fuel</th>
                 </tr>
@@ -185,6 +190,12 @@ export default function Dashboard() {
                 {fleetRiskVehicles.map(v => {
                   const rb = riskBadge(v.risk);
                   const sb = statusBadge(v.status);
+                  const ml = mlScores.find(s => s.entity_id === v.id);
+                  const mlColor = ml ? (
+                    ml.risk_level === 'CRITICAL' ? '#ff0050' :
+                    ml.risk_level === 'HIGH'     ? 'var(--danger)'  :
+                    ml.risk_level === 'MEDIUM'   ? 'var(--warning)' : 'var(--success)'
+                  ) : 'var(--text-muted)';
                   return (
                     <tr key={v.id}>
                       <td>
@@ -195,6 +206,16 @@ export default function Dashboard() {
                       <td className={styles.muted}>{v.route}</td>
                       <td><Badge {...sb} /></td>
                       <td><Badge {...rb} /></td>
+                      <td>
+                        {ml ? (
+                          <span style={{ color: mlColor, fontWeight: 700, fontSize: 13 }}>
+                            {ml.overall_score.toFixed(0)}
+                            <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: 10, marginLeft: 4 }}>
+                              {ml.risk_level}
+                            </span>
+                          </span>
+                        ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                      </td>
                       <td>
                         <span style={{ color: v.speed > 70 ? 'var(--danger)' : 'var(--text-primary)' }}>
                           {v.speed} mph

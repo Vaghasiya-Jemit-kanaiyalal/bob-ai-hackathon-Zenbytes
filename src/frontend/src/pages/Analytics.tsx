@@ -19,10 +19,13 @@ import {
   fetchFuelConsumption,
   fetchRiskDistribution,
   fetchVehicleUtilization,
+  fetchMlScores,
+  mockMlScores,
   trafficVsDelayData,
   routeEfficiencyData,
 } from '../data/api';
 import { useApi } from '../utils/useApi';
+import MlScoresPanel from '../components/MlScoresPanel';
 import styles from './Analytics.module.css';
 
 // ─── Shared tooltip style ────────────────────────────────────────────────────
@@ -79,6 +82,7 @@ export default function Analytics() {
   const { data: fuelConsumption }   = useApi(fetchFuelConsumption,     mockFuel);
   const { data: riskDistribution }  = useApi(fetchRiskDistribution,    mockRiskDist);
   const { data: vehicleUtilization }= useApi(fetchVehicleUtilization,  mockVehicleUtil);
+  const { data: mlScores }          = useApi(() => fetchMlScores(),    mockMlScores);
   const routeEfficiency  = routeEfficiencyData;
   const trafficVsDelay   = trafficVsDelayData;
 
@@ -379,6 +383,84 @@ export default function Analytics() {
                   dot={false}
                 />
               </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Section label ──────────────────────────────────────────────────── */}
+      <div className={styles.sectionLabel}>ML Risk Intelligence</div>
+
+      {/* ── ML Scores Table ────────────────────────────────────────────────── */}
+      <MlScoresPanel
+        scores={mlScores}
+        title="ML Risk Scores — Vehicles &amp; Active Trips"
+      />
+
+      {/* ── ML component breakdown radar ──────────────────────────────────── */}
+      <div className={styles.row2}>
+        <Card
+          title="ML Score Component Breakdown — Vehicles"
+          action={<span className={styles.chipMuted}>Live from scoring engine</span>}
+        >
+          <div className={styles.chartWrap}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={mlScores.filter(s => s.entity_type === 'vehicle').slice(0, 8).map(s => ({
+                  id:          s.entity_id,
+                  Delay:       s.delay_score,
+                  Fuel:        s.fuel_score,
+                  Traffic:     s.traffic_score,
+                  Behaviour:   s.behaviour_score,
+                  Maintenance: s.maintenance_score,
+                }))}
+                margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="id" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 100]} />
+                <Tooltip {...tip} />
+                <Legend wrapperStyle={legendStyle} />
+                <Bar dataKey="Delay"       fill="var(--warning)" stackId="a" />
+                <Bar dataKey="Fuel"        fill="var(--accent)"  stackId="a" />
+                <Bar dataKey="Traffic"     fill="var(--purple)"  stackId="a" />
+                <Bar dataKey="Behaviour"   fill="var(--danger)"  stackId="a" />
+                <Bar dataKey="Maintenance" fill="#f97316"        stackId="a" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card
+          title="ML Risk Distribution — All Entities"
+          action={<span className={styles.chipMuted}>Live from scoring engine</span>}
+        >
+          <div className={styles.chartWrap}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={[
+                  { level: 'LOW',      count: mlScores.filter(s => s.risk_level === 'LOW').length,      color: 'var(--success)' },
+                  { level: 'MEDIUM',   count: mlScores.filter(s => s.risk_level === 'MEDIUM').length,   color: 'var(--warning)' },
+                  { level: 'HIGH',     count: mlScores.filter(s => s.risk_level === 'HIGH').length,     color: 'var(--danger)'  },
+                  { level: 'CRITICAL', count: mlScores.filter(s => s.risk_level === 'CRITICAL').length, color: '#ff0050'        },
+                ]}
+                margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="level" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip {...tip} />
+                <Bar dataKey="count" name="Entities" radius={[4, 4, 0, 0]}>
+                  {[
+                    { level: 'LOW',      fill: 'var(--success)' },
+                    { level: 'MEDIUM',   fill: 'var(--warning)' },
+                    { level: 'HIGH',     fill: 'var(--danger)'  },
+                    { level: 'CRITICAL', fill: '#ff0050'        },
+                  ].map(entry => (
+                    <Cell key={entry.level} fill={entry.fill} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>

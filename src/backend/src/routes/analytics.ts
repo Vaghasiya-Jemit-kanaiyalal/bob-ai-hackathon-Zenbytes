@@ -85,6 +85,40 @@ router.get('/route-performance', async (_req, res) => {
   }
 });
 
+// GET /api/analytics/ml-summary  — latest ML score summary from persisted table
+router.get('/ml-summary', async (_req, res) => {
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(`
+      SELECT
+        entity_type,
+        risk_level,
+        COUNT(*)                AS count,
+        AVG(overall_score)      AS avg_score,
+        AVG(delay_score)        AS avg_delay,
+        AVG(fuel_score)         AS avg_fuel,
+        AVG(behaviour_score)    AS avg_behaviour,
+        AVG(traffic_score)      AS avg_traffic,
+        AVG(maintenance_score)  AS avg_maintenance
+      FROM (
+        SELECT ms.*
+        FROM ml_scores ms
+        INNER JOIN (
+          SELECT entity_id, entity_type, MAX(scored_at) AS latest
+          FROM ml_scores
+          GROUP BY entity_id, entity_type
+        ) latest ON ms.entity_id   = latest.entity_id
+                AND ms.entity_type = latest.entity_type
+                AND ms.scored_at   = latest.latest
+      ) deduped
+      GROUP BY entity_type, risk_level
+      ORDER BY entity_type, FIELD(risk_level,'CRITICAL','HIGH','MEDIUM','LOW')
+    `);
+    res.json({ data: rows });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 // GET /api/analytics/risk-distribution  — event counts by type
 router.get('/risk-distribution', async (_req, res) => {
   try {
