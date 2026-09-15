@@ -15,21 +15,28 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
 interface DataRefreshContextValue {
-  refreshKey:     number;
-  triggerRefresh: () => void;
+  refreshKey:      number;
+  hasImported:     boolean;   // true after at least one successful CSV import this session
+  triggerRefresh:  () => void;
 }
 
 const DataRefreshContext = createContext<DataRefreshContextValue>({
   refreshKey:     0,
+  hasImported:    false,
   triggerRefresh: () => {},
 });
 
 export function DataRefreshProvider({ children }: { children: ReactNode }) {
-  const [refreshKey, setRefreshKey] = useState(0);
-  const triggerRefresh = useCallback(() => setRefreshKey(k => k + 1), []);
+  const [refreshKey,  setRefreshKey]  = useState(0);
+  const [hasImported, setHasImported] = useState(false);
+
+  const triggerRefresh = useCallback(() => {
+    setRefreshKey(k => k + 1);
+    setHasImported(true);
+  }, []);
 
   return (
-    <DataRefreshContext.Provider value={{ refreshKey, triggerRefresh }}>
+    <DataRefreshContext.Provider value={{ refreshKey, hasImported, triggerRefresh }}>
       {children}
     </DataRefreshContext.Provider>
   );

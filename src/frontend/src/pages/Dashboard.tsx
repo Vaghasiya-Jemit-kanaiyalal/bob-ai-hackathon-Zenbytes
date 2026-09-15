@@ -35,7 +35,7 @@ const mockKpi = {
 };
 
 export default function Dashboard() {
-  const { refreshKey } = useDataRefresh();
+  const { refreshKey, hasImported } = useDataRefresh();
   const { demoMode } = useDemoMode();
 
   const { data: kpiApi,   loading: kpiLoading } = useApi(fetchKpi, refreshKey);
@@ -50,9 +50,10 @@ export default function Dashboard() {
   const routes   = demoMode ? mockRoutes   : rApi;
 
   const loading = !demoMode && (kpiLoading || vLoading || tLoading || rLoading);
-  const noData  = !loading && !kpiData;
+  // Don't flash empty state while a fresh import is still being fetched
+  const noData  = !loading && !kpiData && !hasImported;
 
-  if (loading) {
+  if (loading || (hasImported && !kpiData)) {
     return (
       <div className={styles.page} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
         <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading dashboard…</span>
