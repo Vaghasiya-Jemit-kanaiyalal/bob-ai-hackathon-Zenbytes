@@ -35,16 +35,6 @@ const tip = {
 
 const legendStyle = { fontSize: 12, color: 'var(--text-secondary)' };
 
-// ─── KPI strip ───────────────────────────────────────────────────────────────
-const KPI_ITEMS = [
-  { label: 'Total Trips Today',      value: '387',   delta: '+12%',  deltaUp: true,  color: 'var(--accent)'  },
-  { label: 'Avg Delay per Trip',     value: '8.4 m', delta: '−2.1m', deltaUp: true,  color: 'var(--success)' },
-  { label: 'Fuel Efficiency Score',  value: '81.4',  delta: '+3.2',  deltaUp: true,  color: 'var(--purple)'  },
-  { label: 'Fleet Utilization',      value: '79 %',  delta: '−1.5%', deltaUp: false, color: 'var(--accent)'  },
-  { label: 'Risk Events (7d)',       value: '103',   delta: '−18%',  deltaUp: true,  color: 'var(--warning)' },
-  { label: 'Routes Optimized',       value: '5 / 8', delta: '62.5%', deltaUp: true,  color: 'var(--success)' },
-] as const;
-
 // ─── Donut centre label ───────────────────────────────────────────────────────
 function DonutLabel({ cx, cy, total }: { cx: number; cy: number; total: number }) {
   return (
@@ -59,21 +49,13 @@ function DonutLabel({ cx, cy, total }: { cx: number; cy: number; total: number }
   );
 }
 
-// ─── Route efficiency score colour ───────────────────────────────────────────
-function scoreColour(score: number) {
-  if (score >= 90) return 'var(--success)';
-  if (score >= 80) return 'var(--accent)';
-  if (score >= 70) return 'var(--warning)';
-  return 'var(--danger)';
-}
-
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Analytics() {
-  const { data: delayTrend }        = useApi(fetchDelayTrend);
-  const { data: fuelConsumption }   = useApi(fetchFuelConsumption);
-  const { data: riskDistributionRaw } = useApi(fetchRiskDistribution);
-  const { data: vehicleUtilization }  = useApi(fetchVehicleUtilization);
-  const { data: mlScores }            = useApi(() => fetchMlScores());
+  const { data: delayTrend,           loading: l1 } = useApi(fetchDelayTrend);
+  const { data: fuelConsumption,      loading: l2 } = useApi(fetchFuelConsumption);
+  const { data: riskDistributionRaw,  loading: l3 } = useApi(fetchRiskDistribution);
+  const { data: vehicleUtilization,   loading: l4 } = useApi(fetchVehicleUtilization);
+  const { data: mlScores,             loading: l5 } = useApi(() => fetchMlScores());
 
   const riskDistribution = (riskDistributionRaw ?? []).map(d => ({
     ...d,
@@ -86,19 +68,43 @@ export default function Analytics() {
   }));
 
   const riskTotal = riskDistribution.reduce((s, d) => s + d.value, 0);
+  const anyLoading = l1 || l2 || l3 || l4 || l5;
+  const hasAnyData = delayTrend?.length || fuelConsumption?.length || mlScores?.length;
+
+  // Full-page empty state when nothing has been imported yet
+  if (!anyLoading && !hasAnyData) {
+    return (
+      <div className={styles.page}>
+        <EmptyState page="analytics" />
+      </div>
+    );
+  }
+
+  // Compute live KPIs from real data
+  const totalFuel     = fuelConsumption?.reduce((s, r) => s + Number(r.consumed ?? 0), 0) ?? 0;
+  const avgDelay      = delayTrend?.length
+    ? (delayTrend.reduce((s, r) => s + Number(r.avg_delay ?? 0), 0) / delayTrend.length).toFixed(1)
+    : '—';
+  const criticalCount = mlScores?.filter(s => s.risk_level === 'CRITICAL').length ?? 0;
+  const highCount     = mlScores?.filter(s => s.risk_level === 'HIGH').length ?? 0;
+  const riskEvents    = riskDistribution.reduce((s, d) => s + d.value, 0);
 
   return (
     <div className={styles.page}>
 
-      {/* ── KPI strip ──────────────────────────────────────────────────────── */}
+      {/* ── Live KPI strip ─────────────────────────────────────────────────── */}
       <div className={styles.kpiStrip}>
-        {KPI_ITEMS.map(k => (
+        {[
+          { label: 'Total Fuel (7d)',    value: `${totalFuel.toFixed(0)} L`,    color: 'var(--accent)'  },
+          { label: 'Avg Delay',         value: `${avgDelay} min`,               color: 'var(--warning)' },
+          { label: 'Risk Events (7d)',  value: `${riskEvents}`,                  color: 'var(--danger)'  },
+          { label: 'HIGH Risk Entities',value: `${highCount}`,                   color: 'var(--danger)'  },
+          { label: 'CRITICAL Entities', value: `${criticalCount}`,               color: '#ff0050'        },
+          { label: 'ML Scores Total',   value: `${mlScores?.length ?? 0}`,       color: 'var(--success)' },
+        ].map(k => (
           <div key={k.label} className={styles.kpiTile}>
             <span className={styles.kpiValue} style={{ color: k.color }}>{k.value}</span>
             <span className={styles.kpiLabel}>{k.label}</span>
-            <span className={`${styles.kpiDelta} ${k.deltaUp ? styles.kpiDeltaUp : styles.kpiDeltaDown}`}>
-              {k.delta} vs yesterday
-            </span>
           </div>
         ))}
       </div>

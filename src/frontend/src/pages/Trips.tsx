@@ -21,7 +21,7 @@ export default function Trips() {
   const [riskFilter,   setRisk]     = useState<RiskFilter>('all');
 
   if (!loading && !trips) {
-    return <div style={{ padding: 24 }}><EmptyState /></div>;
+    return <div style={{ padding: 24 }}><EmptyState page="trips" /></div>;
   }
 
   const filtered = (trips ?? []).filter(t => {

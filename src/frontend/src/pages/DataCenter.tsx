@@ -215,10 +215,63 @@ export default function DataCenter() {
             <p className={styles.pageDesc}>Upload fleet CSV data to power dashboards, analytics, and ML analysis</p>
           </div>
         </div>
-        <button className={styles.sampleBtn} onClick={downloadSample}>
-          <Download size={14} />
-          Download Sample CSV
-        </button>
+      </div>
+
+      {/* Demo datasets */}
+      <div id="samples" className={styles.datasetsRow}>
+        <div className={styles.datasetCard} style={{ borderColor: 'var(--success)' }}>
+          <div className={styles.datasetBadge} style={{ background: 'var(--success-dim)', color: 'var(--success)' }}>
+            Medium Level
+          </div>
+          <div className={styles.datasetTitle}>Mixed Fleet — 30 Trips</div>
+          <div className={styles.datasetDesc}>
+            10 vehicles · 5 routes · moderate/heavy traffic · avg delay 12 min · ideal for testing normal fleet operations
+          </div>
+          <div className={styles.datasetStats}>
+            <span>30 rows</span><span>·</span>
+            <span>free / moderate / heavy traffic</span><span>·</span>
+            <span>delays 3–25 min</span>
+          </div>
+          <a href="/datasets/medium-fleet.csv" download className={styles.datasetBtn} style={{ background: 'var(--success)' }}>
+            <Download size={13} /> Download medium-fleet.csv
+          </a>
+        </div>
+
+        <div className={styles.datasetCard} style={{ borderColor: 'var(--danger)' }}>
+          <div className={styles.datasetBadge} style={{ background: 'var(--danger-dim)', color: 'var(--danger)' }}>
+            Hard Level
+          </div>
+          <div className={styles.datasetTitle}>Crisis Fleet — 50 Trips</div>
+          <div className={styles.datasetDesc}>
+            12 vehicles · 5 routes · heavy/standstill traffic · severe delays 30–80 min · high ML risk scores — produces striking charts
+          </div>
+          <div className={styles.datasetStats}>
+            <span>50 rows</span><span>·</span>
+            <span>heavy / standstill traffic</span><span>·</span>
+            <span>delays 33–80 min</span>
+          </div>
+          <a href="/datasets/hard-fleet.csv" download className={styles.datasetBtn} style={{ background: 'var(--danger)' }}>
+            <Download size={13} /> Download hard-fleet.csv
+          </a>
+        </div>
+
+        <div className={styles.datasetCard} style={{ borderColor: 'var(--accent)' }}>
+          <div className={styles.datasetBadge} style={{ background: 'var(--accent-dim)', color: 'var(--accent)' }}>
+            Quick Test
+          </div>
+          <div className={styles.datasetTitle}>API Sample — 5 Trips</div>
+          <div className={styles.datasetDesc}>
+            Minimal 5-row sample for quick validation testing. Downloads from the backend API.
+          </div>
+          <div className={styles.datasetStats}>
+            <span>5 rows</span><span>·</span>
+            <span>mixed traffic</span><span>·</span>
+            <span>baseline test</span>
+          </div>
+          <button className={`${styles.datasetBtn}`} style={{ background: 'var(--accent)' }} onClick={downloadSample}>
+            <Download size={13} /> Download sample.csv
+          </button>
+        </div>
       </div>
 
       {/* Schema info */}

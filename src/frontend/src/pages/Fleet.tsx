@@ -53,7 +53,7 @@ export default function Fleet() {
   };
 
   if (!loading && !vehicles) {
-    return <div style={{ padding: 24 }}><EmptyState /></div>;
+    return <div style={{ padding: 24 }}><EmptyState page="fleet" /></div>;
   }
 
   const filtered = sortVehicles(

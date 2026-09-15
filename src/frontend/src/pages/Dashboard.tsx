@@ -32,7 +32,7 @@ export default function Dashboard() {
   if (noData) {
     return (
       <div className={styles.page}>
-        <EmptyState />
+        <EmptyState page="dashboard" />
       </div>
     );
   }

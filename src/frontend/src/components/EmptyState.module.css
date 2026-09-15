@@ -3,44 +3,109 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
+  padding: 60px 24px 72px;
   text-align: center;
-  min-height: 280px;
+  min-height: 340px;
 }
 
-.icon {
-  color: var(--border-strong);
-  margin-bottom: 20px;
+.iconWrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
-.sub {
-  font-size: 13px;
+.desc {
+  font-size: 13.5px;
   color: var(--text-muted);
-  max-width: 380px;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  max-width: 440px;
+  line-height: 1.65;
+  margin-bottom: 24px;
 }
 
-.btn {
+/* ─── Feature preview chips ──────────────────────────────────── */
+.previews {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 28px;
+  max-width: 560px;
+}
+
+.previewChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-width: 150px;
+}
+
+.chipLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chipWhat {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.primaryBtn {
   display: inline-flex;
   align-items: center;
-  padding: 9px 18px;
+  gap: 8px;
+  padding: 11px 22px;
   background: var(--accent);
   color: #fff;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 9px;
+  font-size: 13.5px;
   font-weight: 600;
   text-decoration: none;
   transition: opacity 0.15s;
 }
 
-.btn:hover {
+.primaryBtn:hover {
   opacity: 0.88;
+}
+
+.secondaryBtn {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.secondaryBtn:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }

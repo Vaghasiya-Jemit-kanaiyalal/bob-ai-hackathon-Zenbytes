@@ -55,7 +55,7 @@ export default function RoutesPage() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   if (!loading && !routes) {
-    return <div style={{ padding: 24 }}><EmptyState /></div>;
+    return <div style={{ padding: 24 }}><EmptyState page="routes" /></div>;
   }
 
   const handleSort = (key: SortKey) => {

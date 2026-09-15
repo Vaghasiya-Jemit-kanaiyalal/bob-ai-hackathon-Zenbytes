@@ -1,0 +1,51 @@
+vehicle_id,route,distance_km,expected_time,actual_time,fuel_used,traffic
+VH-001,Downtown Core Loop,48.0,95,142,7.8,standstill
+VH-002,Northside Industrial,62.0,110,168,11.4,heavy
+VH-003,Airport Connector,35.0,70,107,6.2,heavy
+VH-004,South Port Freight,78.0,135,198,26.4,standstill
+VH-005,East Residential Circuit,55.0,100,151,10.9,heavy
+VH-006,West Cross-Town Express,42.0,85,134,8.7,standstill
+VH-007,Downtown Core Loop,48.0,95,128,7.1,heavy
+VH-008,Airport Connector,35.0,70,118,7.8,heavy
+VH-009,Northside Industrial,62.0,110,179,13.6,standstill
+VH-010,South Port Freight,78.0,135,215,28.9,standstill
+VH-011,East Residential Circuit,55.0,100,162,12.4,heavy
+VH-012,West Cross-Town Express,42.0,85,140,9.3,standstill
+VH-001,South Port Freight,78.0,135,191,24.8,standstill
+VH-002,Downtown Core Loop,48.0,95,138,7.5,heavy
+VH-003,Northside Industrial,62.0,110,175,14.1,standstill
+VH-004,Airport Connector,35.0,70,103,6.8,heavy
+VH-005,Downtown Core Loop,48.0,95,146,8.3,standstill
+VH-006,Northside Industrial,62.0,110,165,11.8,heavy
+VH-007,South Port Freight,78.0,135,204,27.2,standstill
+VH-008,East Residential Circuit,55.0,100,158,11.7,heavy
+VH-009,Airport Connector,35.0,70,112,7.3,heavy
+VH-010,West Cross-Town Express,42.0,85,136,8.9,standstill
+VH-011,Downtown Core Loop,48.0,95,132,7.2,heavy
+VH-012,South Port Freight,78.0,135,207,27.8,standstill
+VH-001,Northside Industrial,62.0,110,172,13.2,standstill
+VH-002,East Residential Circuit,55.0,100,155,11.2,heavy
+VH-003,Downtown Core Loop,48.0,95,139,7.6,heavy
+VH-004,West Cross-Town Express,42.0,85,131,8.4,standstill
+VH-005,South Port Freight,78.0,135,196,25.9,standstill
+VH-006,Airport Connector,35.0,70,109,7.0,heavy
+VH-007,East Residential Circuit,55.0,100,164,12.8,standstill
+VH-008,Northside Industrial,62.0,110,182,14.7,standstill
+VH-009,Downtown Core Loop,48.0,95,145,8.1,heavy
+VH-010,Airport Connector,35.0,70,114,7.5,heavy
+VH-011,West Cross-Town Express,42.0,85,138,9.1,standstill
+VH-012,Northside Industrial,62.0,110,176,13.9,standstill
+VH-001,East Residential Circuit,55.0,100,159,12.1,heavy
+VH-002,South Port Freight,78.0,135,212,28.4,standstill
+VH-003,West Cross-Town Express,42.0,85,133,8.6,heavy
+VH-004,Downtown Core Loop,48.0,95,148,8.5,standstill
+VH-005,Northside Industrial,62.0,110,169,12.6,heavy
+VH-006,East Residential Circuit,55.0,100,157,11.4,heavy
+VH-007,Airport Connector,35.0,70,115,7.6,heavy
+VH-008,Downtown Core Loop,48.0,95,141,7.7,standstill
+VH-009,South Port Freight,78.0,135,200,26.7,standstill
+VH-010,East Residential Circuit,55.0,100,163,12.6,standstill
+VH-011,Airport Connector,35.0,70,111,7.2,heavy
+VH-012,Downtown Core Loop,48.0,95,137,7.4,heavy
+VH-001,West Cross-Town Express,42.0,85,143,9.5,standstill
+VH-002,Northside Industrial,62.0,110,188,15.2,standstill
