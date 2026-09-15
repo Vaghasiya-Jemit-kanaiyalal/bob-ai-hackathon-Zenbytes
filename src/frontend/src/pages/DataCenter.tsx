@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, type DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, FileText, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, Database, BarChart3 } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, AlertTriangle, XCircle, Download, RefreshCw, Database, BarChart3, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useDataRefresh } from '../context/DataRefreshContext';
 import styles from './DataCenter.module.css';
@@ -195,8 +195,6 @@ export default function DataCenter() {
       setResult(json.data!);
       // Signal all pages to re-fetch their data from the freshly populated DB
       triggerRefresh();
-      // Brief pause so the success banner is visible, then redirect to Dashboard
-      setTimeout(() => navigate('/'), 2200);
     } catch (err) {
       setImportErr(String(err));
     } finally {
@@ -331,7 +329,7 @@ export default function DataCenter() {
       )}
 
       {/* Validation errors */}
-      {preview && hasErrors && (
+      {preview && !result && hasErrors && (
         <div className={styles.errorBox}>
           <div className={styles.errorBoxHeader}>
             <AlertTriangle size={15} />
@@ -354,7 +352,9 @@ export default function DataCenter() {
       {preview && preview.rows.length > 0 && !result && (
         <div className={styles.previewSection}>
           <div className={styles.previewHeader}>
-            <span className={styles.previewTitle}>Preview — {validRowCount} valid row(s){totalLines > 100 ? ` (showing first 100 of ${totalLines})` : ''}</span>
+            <span className={styles.previewTitle}>
+              Preview — {validRowCount} valid row(s){totalLines > 100 ? ` (showing first 100 of ${totalLines})` : ''}
+            </span>
           </div>
           <div className={styles.tableWrap}>
             <table className={styles.table}>
@@ -406,9 +406,9 @@ export default function DataCenter() {
           <div className={styles.resultHeader}>
             <CheckCircle2 size={20} className={styles.successIcon} />
             <div>
-              <div className={styles.resultTitle}>Import Successful — Redirecting to Dashboard…</div>
+              <div className={styles.resultTitle}>Import Successful!</div>
               <div className={styles.resultSub}>
-                {result.rows_imported} trip(s) imported · {result.validation_errors.length} row(s) skipped · Dashboard refreshes automatically in 2 seconds
+                {result.rows_imported} trip(s) imported · {result.validation_errors.length} row(s) skipped · Click "View Dashboard" to see your data
               </div>
             </div>
           </div>
@@ -552,9 +552,10 @@ export default function DataCenter() {
               <Upload size={14} />
               Upload Another File
             </button>
-            <a href="/" className={styles.dashBtn}>
+            <button className={styles.dashBtn} onClick={() => navigate('/')}>
+              <LayoutDashboard size={14} />
               View Dashboard →
-            </a>
+            </button>
           </div>
         </div>
       )}

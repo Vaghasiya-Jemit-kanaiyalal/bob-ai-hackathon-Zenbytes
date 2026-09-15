@@ -31,6 +31,14 @@ export default function Dashboard() {
   const loading = kpiLoading || vLoading || tLoading || rLoading;
   const noData  = !loading && !kpiData;
 
+  if (loading) {
+    return (
+      <div className={styles.page} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading dashboard…</span>
+      </div>
+    );
+  }
+
   if (noData) {
     return (
       <div className={styles.page}>

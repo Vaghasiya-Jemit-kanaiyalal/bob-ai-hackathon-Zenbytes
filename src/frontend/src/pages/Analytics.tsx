@@ -72,8 +72,16 @@ export default function Analytics() {
   const anyLoading = l1 || l2 || l3 || l4 || l5;
   const hasAnyData = delayTrend?.length || fuelConsumption?.length || mlScores?.length;
 
+  if (anyLoading) {
+    return (
+      <div className={styles.page} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading analytics…</span>
+      </div>
+    );
+  }
+
   // Full-page empty state when nothing has been imported yet
-  if (!anyLoading && !hasAnyData) {
+  if (!hasAnyData) {
     return (
       <div className={styles.page}>
         <EmptyState page="analytics" />

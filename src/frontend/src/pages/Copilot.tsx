@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Zap, RefreshCw, Sparkles } from 'lucide-react';
 import { sendCopilotMessage } from '../data/api';
 import styles from './Copilot.module.css';
@@ -11,14 +11,14 @@ interface Message {
 }
 
 const suggestedQuestions = [
-  'Which vehicles are currently at highest risk?',
-  'What is the fleet status summary?',
-  'Show me delayed trips and their details.',
-  'Analyze fuel consumption patterns.',
+  'Which vehicles are at highest risk right now?',
+  'Show me the fleet status summary.',
+  'List all delayed trips with details.',
+  'Analyse fuel consumption across all routes.',
   'Which drivers need safety coaching?',
-  'What routes can be optimized to reduce delays?',
-  'Show ML risk analysis scores.',
-  'Give me an overview of route performance.',
+  'How can Pune–Mumbai NH-48 route delays be reduced?',
+  'Show ML risk scores for all vehicles.',
+  'Which route has the worst on-time performance?',
 ];
 
 function getTime() {
@@ -30,31 +30,33 @@ export default function Copilot() {
     {
       id: 0,
       role: 'assistant',
-      content: `👋 Hello! I'm **Bob**, your YatraDrishti AI Copilot.
+      content: `👋 Namaste! I'm **Bob**, your YatraDrishti AI Copilot.
 
 I answer questions using your **actual imported fleet data** from the MySQL database and ML analysis results.
 
 **What I can help with:**
 - 🚨 High-risk vehicles and safety alerts
-- 📍 Route performance and optimization
+- 📍 Route performance (NH-48, JNPT, city corridors)
 - 📊 Fuel efficiency and cost analytics
 - 🕐 Delayed trips and root-cause analysis
-- 👨‍✈️ Driver behavior insights
+- 👨‍✈️ Driver behaviour insights
 - 🤖 ML scoring results and recommendations
 
 *Ask me anything about your fleet — I'll query your real data to answer!*`,
       time: getTime(),
     },
   ]);
-  const [input,   setInput]   = useState('');
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [input,     setInput]     = useState('');
+  const [loading,   setLoading]   = useState(false);
+  const messagesRef = useRef<HTMLDivElement>(null);
 
+  // Scroll only inside the chat messages container — never the page
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = messagesRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
-  async function sendMessage(text: string) {
+  const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || loading) return;
     const userMsg: Message = { id: Date.now(), role: 'user', content: text, time: getTime() };
     setMessages(prev => [...prev, userMsg]);
@@ -87,7 +89,8 @@ I answer questions using your **actual imported fleet data** from the MySQL data
     } finally {
       setLoading(false);
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   function formatContent(text: string) {
     return text
@@ -109,7 +112,7 @@ I answer questions using your **actual imported fleet data** from the MySQL data
     <div className={styles.page}>
       {/* Left: Chat */}
       <div className={styles.chatCol}>
-        <div className={styles.messages}>
+        <div className={styles.messages} ref={messagesRef}>
           {messages.map(msg => (
             <div key={msg.id} className={`${styles.msgRow} ${msg.role === 'user' ? styles.userRow : ''}`}>
               {msg.role === 'assistant' && (
@@ -134,7 +137,7 @@ I answer questions using your **actual imported fleet data** from the MySQL data
               </div>
             </div>
           )}
-          <div ref={bottomRef} />
+          <div />
         </div>
 
         <div className={styles.inputArea}>
@@ -143,7 +146,7 @@ I answer questions using your **actual imported fleet data** from the MySQL data
             placeholder="Ask Bob about your fleet data…"
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
+            onKeyDown={e => { if (e.key === 'Enter') sendMessage(input); }}
             disabled={loading}
           />
           <button
@@ -167,7 +170,7 @@ I answer questions using your **actual imported fleet data** from the MySQL data
             <button
               key={i}
               className={styles.suggestion}
-              onClick={() => sendMessage(q)}
+              onClick={e => { e.preventDefault(); sendMessage(q); }}
               disabled={loading}
             >
               {q}

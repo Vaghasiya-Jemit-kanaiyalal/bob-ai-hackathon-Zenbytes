@@ -1,21 +1,56 @@
+/* ─── Page wrapper — grey background, full viewport ─────────────────────────── */
 .page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
-  padding: 24px;
+  background: #eef1f6;
+  padding: 32px 16px;
 }
 
+/* ─── Outer card — image left + form right ────────────────────────────────── */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 40px 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   width: 100%;
-  max-width: 420px;
+  max-width: 860px;
+  min-height: 540px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
 }
 
+/* ─── Left panel — image fills card height ────────────────────────────────── */
+.leftPanel {
+  position: relative;
+  overflow: hidden;
+  background: #0a1628;
+}
+
+.leftImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+/* ─── Right panel — form ───────────────────────────────────────────────────── */
+.rightPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  padding: 44px 40px;
+  overflow-y: auto;
+}
+
+/* inner form container — no max-width restriction needed inside card */
+.formWrap {
+  width: 100%;
+}
+
+/* ─── Brand row ────────────────────────────────────────────────────────────── */
 .brandRow {
   display: flex;
   align-items: center;
@@ -35,32 +70,35 @@
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
 .brandName {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1a202c;
 }
 
 .brandTag {
   font-size: 11px;
-  color: var(--text-muted);
+  color: #718096;
 }
 
+/* ─── Headings ─────────────────────────────────────────────────────────────── */
 .heading {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1a202c;
   margin-bottom: 6px;
 }
 
 .sub {
   font-size: 13px;
-  color: var(--text-muted);
+  color: #718096;
   margin-bottom: 28px;
 }
 
+/* ─── Form ─────────────────────────────────────────────────────────────────── */
 .form {
   display: flex;
   flex-direction: column;
@@ -72,45 +110,55 @@
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: #2d3748;
 }
 
 .input {
-  padding: 10px 12px;
-  border: 1px solid var(--border);
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
   border-radius: 8px;
-  background: var(--bg);
-  color: var(--text-primary);
+  background: #f7f9fc;
+  color: #1a202c;
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .input:focus {
   border-color: var(--accent);
+  background: #fff;
 }
 
+.input::placeholder {
+  color: #a0aec0;
+}
+
+/* ─── Error ────────────────────────────────────────────────────────────────── */
 .error {
   padding: 10px 12px;
-  background: var(--danger-dim);
-  border: 1px solid var(--danger);
+  background: #fff5f5;
+  border: 1px solid #fc8181;
   border-radius: 8px;
-  color: var(--danger);
+  color: #c53030;
   font-size: 13px;
 }
 
+/* ─── Button ───────────────────────────────────────────────────────────────── */
 .btn {
-  padding: 11px 16px;
+  padding: 12px 16px;
   background: var(--accent);
   color: #fff;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
   transition: opacity 0.15s;
   margin-top: 4px;
+  width: 100%;
+  letter-spacing: 0.2px;
 }
 
 .btn:hover:not(:disabled) {
@@ -122,18 +170,34 @@
   cursor: not-allowed;
 }
 
+/* ─── Footer ───────────────────────────────────────────────────────────────── */
 .footer {
   text-align: center;
   font-size: 13px;
-  color: var(--text-muted);
+  color: #718096;
   margin-top: 24px;
 }
 
 .link {
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .link:hover {
   text-decoration: underline;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .card {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+    min-height: unset;
+  }
+  .leftPanel {
+    height: 200px;
+  }
+  .rightPanel {
+    padding: 32px 24px;
+  }
 }
