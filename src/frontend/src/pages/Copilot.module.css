@@ -245,3 +245,36 @@
   font-size: 11px;
   color: var(--text-muted);
 }
+
+/* ── Empty chat state ── */
+.emptyChat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.emptyChatIcon {
+  color: var(--accent);
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+
+.emptyChatTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.2px;
+}
+
+.emptyChatSub {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

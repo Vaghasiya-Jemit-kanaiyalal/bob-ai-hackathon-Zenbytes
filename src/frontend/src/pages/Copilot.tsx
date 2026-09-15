@@ -25,12 +25,7 @@ function getTime() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function Copilot() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 0,
-      role: 'assistant',
-      content: `👋 Namaste! I'm **Bob**, your YatraDrishti AI Copilot.
+const INTRO_MESSAGE = `👋 Namaste! I'm **Bob**, your YatraDrishti AI Copilot.
 
 I answer questions using your **actual imported fleet data** from the MySQL database and ML analysis results.
 
@@ -42,10 +37,12 @@ I answer questions using your **actual imported fleet data** from the MySQL data
 - 👨‍✈️ Driver behaviour insights
 - 🤖 ML scoring results and recommendations
 
-*Ask me anything about your fleet — I'll query your real data to answer!*`,
-      time: getTime(),
-    },
-  ]);
+*Ask me anything about your fleet — I'll query your real data to answer!*`;
+
+const GREETINGS = ['hi', 'hello', 'hey', 'namaste', 'hii', 'helo'];
+
+export default function Copilot() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input,     setInput]     = useState('');
   const [loading,   setLoading]   = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -61,6 +58,19 @@ I answer questions using your **actual imported fleet data** from the MySQL data
     const userMsg: Message = { id: Date.now(), role: 'user', content: text, time: getTime() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+
+    // Greeting → show typing animation for 2s then show intro
+    if (GREETINGS.includes(text.trim().toLowerCase())) {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setLoading(false);
+      setMessages(prev => [
+        ...prev,
+        { id: Date.now() + 1, role: 'assistant', content: INTRO_MESSAGE, time: getTime() },
+      ]);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -113,6 +123,13 @@ I answer questions using your **actual imported fleet data** from the MySQL data
       {/* Left: Chat */}
       <div className={styles.chatCol}>
         <div className={styles.messages} ref={messagesRef}>
+          {messages.length === 0 && !loading && (
+            <div className={styles.emptyChat}>
+              <Zap size={28} className={styles.emptyChatIcon} />
+              <div className={styles.emptyChatTitle}>Ask Question Answer</div>
+              <div className={styles.emptyChatSub}>Type <strong>hi</strong> to get started, or ask anything about your fleet.</div>
+            </div>
+          )}
           {messages.map(msg => (
             <div key={msg.id} className={`${styles.msgRow} ${msg.role === 'user' ? styles.userRow : ''}`}>
               {msg.role === 'assistant' && (

@@ -160,14 +160,55 @@ function buildAnswer(
       `Routes with "disrupted" status should be reviewed for road conditions or incidents.`;
   }
 
-  // --- fleet overview / status ---
-  if (q.includes('fleet') || q.includes('overview') || q.includes('status') || q.includes('summary')) {
-    return `**Fleet Status Summary:**\n\n` +
-      `• Total vehicles: **${kpi.total}** | Active: **${kpi.active}** | In maintenance: **${kpi.in_maintenance}**\n` +
-      `• Trips today: **${kpi.trips_today}** | Active: **${kpi.active_trips}** | Delayed: **${kpi.delayed_trips}**\n` +
-      `• Fleet efficiency: **${Number(kpi.fleet_eff ?? 0).toFixed(1)}%** | On-time rate: **${Number(kpi.on_time_rate ?? 0).toFixed(1)}%**\n` +
-      `• Fuel consumed today: **${Number(kpi.fuel_today ?? 0).toFixed(1)} L**\n\n` +
-      (delayed.length > 0 ? `⚠️ **${kpi.delayed_trips} trip(s) currently delayed** — review Fleet tab for details.` : '✅ All trips running on schedule.');
+  // --- current info / full dashboard summary ---
+  if (
+    q.includes('current') || q.includes('info') || q.includes('information') ||
+    q.includes('show me') || q.includes('what is') || q.includes('give me') ||
+    q.includes('tell me') || q.includes('present') || q.includes('now') ||
+    q.includes('today') || q.includes('live') || q.includes('existing') ||
+    q.includes('fleet') || q.includes('overview') || q.includes('status') || q.includes('summary')
+  ) {
+    // ── Vehicles section ──
+    const vehicleSection =
+      `**🚛 Vehicles:**\n` +
+      `• Total: **${kpi.total ?? 0}** | Active: **${kpi.active ?? 0}** | In Maintenance: **${kpi.in_maintenance ?? 0}**\n` +
+      (highRisk.length > 0
+        ? `• ⚠️ **${highRisk.length} vehicle(s) at HIGH/CRITICAL risk** — ${highRisk.slice(0, 3).map(v => `${v.plate} (${v.risk})`).join(', ')}`
+        : `• ✅ No high-risk vehicles detected`);
+
+    // ── Trips section ──
+    const tripSection =
+      `\n\n**📦 Trips Today:**\n` +
+      `• Total today: **${kpi.trips_today ?? 0}** | Active: **${kpi.active_trips ?? 0}** | Delayed: **${kpi.delayed_trips ?? 0}**\n` +
+      (delayed.length > 0
+        ? `• ⚠️ Delayed: ${delayed.slice(0, 3).map(t => `**${t.id}** (+${t.delay_min} min on ${t.route_name ?? '—'})`).join(', ')}`
+        : `• ✅ All trips running on schedule`);
+
+    // ── Routes section ──
+    const routeSection = routes.length > 0
+      ? `\n\n**🗺️ Route Performance:**\n` +
+        `• Best route: **${routes[routes.length - 1]?.name ?? '—'}** (${Number(routes[routes.length - 1]?.on_time_rate ?? 0).toFixed(0)}% on-time)\n` +
+        `• Worst route: **${routes[0]?.name ?? '—'}** (${Number(routes[0]?.on_time_rate ?? 0).toFixed(0)}% on-time)\n` +
+        `• Total active routes: **${routes.length}**`
+      : `\n\n**🗺️ Routes:** No route data yet.`;
+
+    // ── Fuel section ──
+    const fuelSection =
+      `\n\n**⛽ Fuel:**\n` +
+      `• Consumed today: **${Number(kpi.fuel_today ?? 0).toFixed(1)} L**\n` +
+      `• Fleet average efficiency: **${Number(kpi.fleet_eff ?? 0).toFixed(1)}%**\n` +
+      `• On-time rate across all routes: **${Number(kpi.on_time_rate ?? 0).toFixed(1)}%**`;
+
+    // ── ML section ──
+    const mlSection = mlHighRisk.length > 0
+      ? `\n\n**🤖 ML Risk Alerts:**\n` +
+        `• **${mlHighRisk.length}** entity(s) flagged HIGH/CRITICAL by ML\n` +
+        `• Top risk: **${mlHighRisk[0]?.entity_id}** — score ${Number(mlHighRisk[0]?.overall_score ?? 0).toFixed(0)}, level: ${mlHighRisk[0]?.risk_level}`
+      : `\n\n**🤖 ML Scores:** All entities at LOW/MEDIUM risk — fleet is healthy.`;
+
+    return `**📊 Current Fleet Status — Live Summary:**\n\n` +
+      vehicleSection + tripSection + routeSection + fuelSection + mlSection +
+      `\n\n*This is a live snapshot from your MySQL database. Ask me about any specific area for deeper details.*`;
   }
 
   // --- ML / AI scores ---
