@@ -1,0 +1,113 @@
+.page { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Breadcrumb ── */
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+.breadLink { display: flex; align-items: center; gap: 5px; color: var(--accent); transition: opacity 0.15s; }
+.breadLink:hover { opacity: 0.75; }
+.breadCurrent { color: var(--text-primary); font-weight: 600; }
+
+/* ── Hero ── */
+.hero {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px;
+}
+.heroLeft { display: flex; align-items: flex-start; gap: 16px; }
+.tripIcon {
+  width: 52px; height: 52px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.heroId { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+.heroRoute { font-size: 20px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.heroMeta { font-size: 12.5px; color: var(--text-muted); margin-top: 4px; }
+.heroBadges { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.heroRight { display: flex; flex-direction: column; gap: 7px; text-align: right; }
+.heroStat { display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 12.5px; color: var(--text-secondary); }
+.routeLink { color: var(--accent); text-decoration: none; }
+.routeLink:hover { opacity: 0.8; }
+
+/* ── Progress card ── */
+.progressCard {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.progressHeader { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--text-secondary); }
+.progressLabel { font-weight: 500; }
+.progressRight { font-size: 13px; }
+.progressTrack {
+  height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; position: relative;
+}
+.progressFill { height: 100%; border-radius: 5px; transition: width 0.4s; }
+.progressStops { position: relative; height: 24px; }
+.progressStop { position: absolute; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.stopMarker { width: 8px; height: 8px; border-radius: 50%; }
+.stopLabel { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+/* ── Main grid ── */
+.mainGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── Stops list ── */
+.stopsList { display: flex; flex-direction: column; }
+.stopRow {
+  display: flex; gap: 12px; padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.stopRow:last-child { border-bottom: none; }
+.stopSeq {
+  width: 26px; height: 26px; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.stopBody { flex: 1; min-width: 0; }
+.stopHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+.stopAddress { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.stopRecipient { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.stopMeta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--text-muted); }
+.stopMeta span { display: flex; align-items: center; gap: 4px; }
+.stopNote {
+  display: flex; align-items: flex-start; gap: 5px; margin-top: 7px;
+  padding: 6px 10px; border-radius: 6px; font-size: 12px;
+  color: var(--warning); background: var(--warning-dim);
+}
+
+/* ── Timeline ── */
+.timeline { display: flex; flex-direction: column; padding: 16px 20px; }
+.timelineRow { display: flex; gap: 12px; }
+.timelineLeft { width: 68px; flex-shrink: 0; padding-top: 2px; }
+.timelineTime { font-size: 11.5px; color: var(--text-muted); font-weight: 500; }
+.timelineLine { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+.timelineIcon {
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1;
+}
+.timelineConnector { width: 2px; flex: 1; min-height: 20px; background: var(--border); }
+.timelineBody { flex: 1; padding-bottom: 18px; min-width: 0; }
+.timelineTitle { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+.timelineDesc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.4; }
+.timelineLoc { display: flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Vehicle quick ── */
+.vehicleQuick { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; }
+.vehicleQuickLeft { display: flex; align-items: center; gap: 12px; }
+.vehicleAvatar {
+  width: 38px; height: 38px; border-radius: 9px; background: var(--accent-dim); color: var(--accent);
+  font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.vehicleName { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+.vehiclePlate { font-size: 12px; color: var(--text-muted); }
+.vehicleLink {
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+  background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 8px; font-size: 13px; cursor: pointer; transition: opacity 0.15s;
+}
+.vehicleLink:hover { opacity: 0.8; }
+
+/* ── Not found ── */
+.notFound { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; gap: 8px; text-align: center; }
+.notFoundTitle { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.notFoundSub { font-size: 13px; color: var(--text-muted); }
+.backBtn {
+  display: flex; align-items: center; gap: 6px; margin-top: 12px; padding: 8px 16px;
+  background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 8px; font-size: 13px; cursor: pointer; transition: opacity 0.15s;
+}
+.backBtn:hover { opacity: 0.8; }

@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { Bell, RefreshCw } from 'lucide-react';
-import { vehicles } from '../data/mockData';
+import { vehicles, routes, trips } from '../data/mockData';
 import styles from './Header.module.css';
 
 const staticTitles: Record<string, { title: string; subtitle: string }> = {
@@ -14,14 +14,30 @@ const staticTitles: Record<string, { title: string; subtitle: string }> = {
 
 function usePageInfo() {
   const { pathname } = useLocation();
-  // Vehicle detail: /fleet/:id
-  const fleetDetailMatch = pathname.match(/^\/fleet\/(.+)$/);
-  if (fleetDetailMatch) {
-    const vehicleId = fleetDetailMatch[1];
-    const v = vehicles.find(veh => veh.id === vehicleId);
+
+  const fleetMatch  = pathname.match(/^\/fleet\/(.+)$/);
+  const routeMatch  = pathname.match(/^\/routes\/(.+)$/);
+  const tripMatch   = pathname.match(/^\/trips\/(.+)$/);
+
+  if (fleetMatch) {
+    const v = vehicles.find(veh => veh.id === fleetMatch[1]);
     return {
       title:    v ? `${v.plate} — ${v.make} ${v.model}` : 'Vehicle Detail',
       subtitle: v ? `${v.driver} · ${v.route}` : 'Vehicle details & history',
+    };
+  }
+  if (routeMatch) {
+    const r = routes.find(rt => rt.id === routeMatch[1]);
+    return {
+      title:    r ? `${r.id} — ${r.name}` : 'Route Detail',
+      subtitle: r ? `${r.distance} km · ${r.onTimeRate}% on-time · ${r.vehicles} vehicles` : 'Route details & performance',
+    };
+  }
+  if (tripMatch) {
+    const t = trips.find(tr => tr.id === tripMatch[1]);
+    return {
+      title:    t ? `${t.id}` : 'Trip Detail',
+      subtitle: t ? `${t.driver} · ${t.route} · ${t.origin} → ${t.destination}` : 'Trip details & delivery status',
     };
   }
   return staticTitles[pathname] ?? { title: 'FleetIQ', subtitle: '' };
