@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Package, Clock, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
-import { trips, tripDetails } from '../data/mockData';
+import { trips as mockTrips, tripDetails } from '../data/mockData';
 import type { TripStatus, RiskLevel } from '../data/mockData';
+import { fetchTrips } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { tripStatusBadge, riskBadge } from '../utils/badges';
 import styles from './Trips.module.css';
 
@@ -13,6 +15,7 @@ type RiskFilter   = 'all' | RiskLevel;
 
 export default function Trips() {
   const navigate = useNavigate();
+  const { data: trips } = useApi(() => fetchTrips({ limit: '100' }), mockTrips);
   const [search,     setSearch]     = useState('');
   const [statusFilter, setStatus]   = useState<StatusFilter>('all');
   const [riskFilter,   setRisk]     = useState<RiskFilter>('all');

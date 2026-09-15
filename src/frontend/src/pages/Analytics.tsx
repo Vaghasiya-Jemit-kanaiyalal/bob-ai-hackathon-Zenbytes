@@ -9,13 +9,20 @@ import {
   ResponsiveContainer, Legend,
 } from 'recharts';
 import {
-  delayTrend,
-  fuelConsumption,
-  routeEfficiency,
-  vehicleUtilization,
-  riskDistribution,
-  trafficVsDelay,
+  delayTrend     as mockDelayTrend,
+  fuelConsumption as mockFuel,
+  vehicleUtilization as mockVehicleUtil,
+  riskDistribution   as mockRiskDist,
 } from '../data/mockData';
+import {
+  fetchDelayTrend,
+  fetchFuelConsumption,
+  fetchRiskDistribution,
+  fetchVehicleUtilization,
+  trafficVsDelayData,
+  routeEfficiencyData,
+} from '../data/api';
+import { useApi } from '../utils/useApi';
 import styles from './Analytics.module.css';
 
 // ─── Shared tooltip style ────────────────────────────────────────────────────
@@ -68,6 +75,13 @@ function scoreColour(score: number) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Analytics() {
+  const { data: delayTrend }        = useApi(fetchDelayTrend,          mockDelayTrend);
+  const { data: fuelConsumption }   = useApi(fetchFuelConsumption,     mockFuel);
+  const { data: riskDistribution }  = useApi(fetchRiskDistribution,    mockRiskDist);
+  const { data: vehicleUtilization }= useApi(fetchVehicleUtilization,  mockVehicleUtil);
+  const routeEfficiency  = routeEfficiencyData;
+  const trafficVsDelay   = trafficVsDelayData;
+
   const riskTotal = riskDistribution.reduce((s, d) => s + d.value, 0);
 
   return (

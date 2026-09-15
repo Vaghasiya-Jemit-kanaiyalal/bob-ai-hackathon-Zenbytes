@@ -8,8 +8,10 @@ import {
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import FuelGauge from '../components/FuelGauge';
-import { vehicles } from '../data/mockData';
+import { vehicles as mockVehicles } from '../data/mockData';
 import type { Vehicle, VehicleStatus } from '../data/mockData';
+import { fetchVehicles } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { riskBadge, statusBadge } from '../utils/badges';
 import styles from './Fleet.module.css';
 
@@ -34,6 +36,7 @@ function sortVehicles(list: Vehicle[], key: SortKey, dir: SortDir): Vehicle[] {
 
 export default function Fleet() {
   const navigate = useNavigate();
+  const { data: vehicles } = useApi(() => fetchVehicles(), mockVehicles);
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<FilterType>('all');
   const [sortKey, setSortKey] = useState<SortKey>('risk');

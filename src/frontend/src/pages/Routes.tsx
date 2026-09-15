@@ -11,8 +11,10 @@ import {
 } from 'recharts';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
-import { routes } from '../data/mockData';
+import { routes as mockRoutes } from '../data/mockData';
 import type { Route } from '../data/mockData';
+import { fetchRoutes } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { routeStatusColor } from '../utils/badges';
 import styles from './Routes.module.css';
 
@@ -24,12 +26,14 @@ const trendIcon = (t: string) => t === 'up' ? '↑' : t === 'down' ? '↓' : '�
 const trendColor = (t: string) =>
   t === 'up' ? 'var(--success)' : t === 'down' ? 'var(--danger)' : 'var(--text-muted)';
 
-const radarData = routes.map(r => ({
-  name: r.id,
-  'On-Time':    r.onTimeRate,
-  'Utilization':Math.round(r.dailyTrips / 1.1),
-  'Safety':     100 - r.incidents * 10,
-}));
+function makeRadarData(routes: Route[]) {
+  return routes.map(r => ({
+    name: r.id,
+    'On-Time':     r.onTimeRate,
+    'Utilization': Math.round(r.dailyTrips / 1.1),
+    'Safety':      100 - r.incidents * 10,
+  }));
+}
 
 function sortRoutes(list: Route[], key: SortKey, dir: SortDir): Route[] {
   return [...list].sort((a, b) => {
@@ -43,6 +47,8 @@ function sortRoutes(list: Route[], key: SortKey, dir: SortDir): Route[] {
 
 export default function RoutesPage() {
   const navigate = useNavigate();
+  const { data: routes } = useApi(fetchRoutes, mockRoutes);
+  const radarData = makeRadarData(routes);
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<StatusFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('onTimeRate');

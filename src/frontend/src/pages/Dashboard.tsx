@@ -11,8 +11,11 @@ import KpiTile from '../components/KpiTile';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import {
-  kpiData, vehicles, alerts, routes, trips, efficiencyTrend,
+  kpiData as mockKpi, vehicles as mockVehicles, alerts,
+  routes as mockRoutes, trips as mockTrips, efficiencyTrend,
 } from '../data/mockData';
+import { fetchKpi, fetchVehicles, fetchTrips, fetchRoutes } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { riskBadge, statusBadge, tripStatusBadge } from '../utils/badges';
 import styles from './Dashboard.module.css';
 
@@ -28,6 +31,11 @@ const severityColor = {
 };
 
 export default function Dashboard() {
+  const { data: kpiData }  = useApi(fetchKpi,                                                  mockKpi);
+  const { data: vehicles } = useApi(() => fetchVehicles(),                                     mockVehicles);
+  const { data: trips }    = useApi(() => fetchTrips({ limit: '20' }),                         mockTrips);
+  const { data: routes }   = useApi(fetchRoutes,                                               mockRoutes);
+
   const activeAlerts = alerts.filter(a => !a.acknowledged);
   const recentTrips = trips.slice(0, 6);
   const fleetRiskVehicles = vehicles
