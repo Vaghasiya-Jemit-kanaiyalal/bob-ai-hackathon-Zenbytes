@@ -5,9 +5,11 @@ import Card from '../components/Card';
 import Badge from '../components/Badge';
 import EmptyState from '../components/EmptyState';
 import type { TripStatus, RiskLevel } from '../data/mockData';
+import { trips as mockTrips } from '../data/mockData';
 import { fetchTrips } from '../data/api';
 import { useApi } from '../utils/useApi';
 import { useDataRefresh } from '../context/DataRefreshContext';
+import { useDemoMode } from '../context/DemoModeContext';
 import { tripStatusBadge, riskBadge } from '../utils/badges';
 import styles from './Trips.module.css';
 
@@ -17,12 +19,15 @@ type RiskFilter   = 'all' | RiskLevel;
 export default function Trips() {
   const navigate = useNavigate();
   const { refreshKey } = useDataRefresh();
-  const { data: trips, loading } = useApi(() => fetchTrips({ limit: '100' }), refreshKey);
+  const { demoMode } = useDemoMode();
+  const { data: apiTrips, loading: apiLoading } = useApi(() => fetchTrips({ limit: '100' }), refreshKey);
+  const trips   = demoMode ? mockTrips : apiTrips;
+  const loading = demoMode ? false : apiLoading;
   const [search,     setSearch]     = useState('');
   const [statusFilter, setStatus]   = useState<StatusFilter>('all');
   const [riskFilter,   setRisk]     = useState<RiskFilter>('all');
 
-  if (!loading && !trips) {
+  if (!demoMode && !loading && !trips) {
     return <div style={{ padding: 24 }}><EmptyState page="trips" /></div>;
   }
 

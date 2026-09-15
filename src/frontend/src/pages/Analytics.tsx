@@ -13,8 +13,15 @@ import {
   fetchVehicleUtilization,
   fetchMlScores,
 } from '../data/api';
+import {
+  delayTrend as mockDelayTrend,
+  fuelConsumption as mockFuelConsumption,
+  riskDistribution as mockRiskDist,
+  vehicleUtilization as mockVehicleUtil,
+} from '../data/mockData';
 import { useApi } from '../utils/useApi';
 import { useDataRefresh } from '../context/DataRefreshContext';
+import { useDemoMode } from '../context/DemoModeContext';
 import MlScoresPanel from '../components/MlScoresPanel';
 import EmptyState from '../components/EmptyState';
 import styles from './Analytics.module.css';
@@ -50,26 +57,47 @@ function DonutLabel({ cx, cy, total }: { cx: number; cy: number; total: number }
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
+// Shape demo risk distribution to match the API shape
+const demoPieData = mockRiskDist.map(d => ({
+  event_type: d.name.toLowerCase().replace(/ /g, '_'),
+  name:  d.name,
+  value: d.value,
+  fill:  d.fill,
+}));
+
 export default function Analytics() {
   const { refreshKey } = useDataRefresh();
-  const { data: delayTrend,           loading: l1 } = useApi(fetchDelayTrend, refreshKey);
-  const { data: fuelConsumption,      loading: l2 } = useApi(fetchFuelConsumption, refreshKey);
-  const { data: riskDistributionRaw,  loading: l3 } = useApi(fetchRiskDistribution, refreshKey);
-  const { data: vehicleUtilization,   loading: l4 } = useApi(fetchVehicleUtilization, refreshKey);
-  const { data: mlScores,             loading: l5 } = useApi(() => fetchMlScores(), refreshKey);
+  const { demoMode } = useDemoMode();
 
-  const riskDistribution = (riskDistributionRaw ?? []).map(d => ({
-    ...d,
-    name: d.event_type,
-    fill: d.event_type === 'speeding' ? 'var(--danger)' :
-          d.event_type === 'hard_braking' ? 'var(--warning)' :
-          d.event_type === 'sharp_cornering' ? 'var(--purple)' :
-          d.event_type === 'idle_excess' ? 'var(--accent)' :
-          d.event_type === 'lane_departure' ? '#f97316' : 'var(--text-muted)',
-  }));
+  const { data: dtApi,   loading: l1 } = useApi(fetchDelayTrend, refreshKey);
+  const { data: fcApi,   loading: l2 } = useApi(fetchFuelConsumption, refreshKey);
+  const { data: rdApi,   loading: l3 } = useApi(fetchRiskDistribution, refreshKey);
+  const { data: vuApi,   loading: l4 } = useApi(fetchVehicleUtilization, refreshKey);
+  const { data: mlApi,   loading: l5 } = useApi(() => fetchMlScores(), refreshKey);
 
-  const riskTotal = riskDistribution.reduce((s, d) => s + d.value, 0);
-  const anyLoading = l1 || l2 || l3 || l4 || l5;
+  // In demo mode use mock data directly; otherwise use API data
+  const delayTrend        = demoMode ? mockDelayTrend.map(d => ({ date: d.date, route_id: 'demo', avg_delay: (d.R01 + d.R02 + d.R03 + d.R04) / 4 })) : dtApi;
+  const fuelConsumption   = demoMode ? mockFuelConsumption : fcApi;
+  const vehicleUtilization = demoMode
+    ? mockVehicleUtil.map(d => ({ day: d.day, active: d.active, in_progress: d.idle, delayed: d.maintenance }))
+    : vuApi;
+  const mlScores = demoMode ? null : mlApi;
+
+  const riskDistributionRaw = demoMode ? demoPieData : rdApi;
+  const riskDistribution = demoMode
+    ? demoPieData
+    : (riskDistributionRaw ?? []).map(d => ({
+        ...d,
+        name: d.event_type,
+        fill: d.event_type === 'speeding'        ? 'var(--danger)'   :
+              d.event_type === 'hard_braking'    ? 'var(--warning)'  :
+              d.event_type === 'sharp_cornering' ? 'var(--purple)'   :
+              d.event_type === 'idle_excess'     ? 'var(--accent)'   :
+              d.event_type === 'lane_departure'  ? '#f97316' : 'var(--text-muted)',
+      }));
+
+  const riskTotal  = riskDistribution.reduce((s, d) => s + d.value, 0);
+  const anyLoading = !demoMode && (l1 || l2 || l3 || l4 || l5);
   const hasAnyData = delayTrend?.length || fuelConsumption?.length || mlScores?.length;
 
   if (anyLoading) {
@@ -80,8 +108,8 @@ export default function Analytics() {
     );
   }
 
-  // Full-page empty state when nothing has been imported yet
-  if (!hasAnyData) {
+  // Full-page empty state when nothing has been imported yet (only in live mode)
+  if (!demoMode && !hasAnyData) {
     return (
       <div className={styles.page}>
         <EmptyState page="analytics" />

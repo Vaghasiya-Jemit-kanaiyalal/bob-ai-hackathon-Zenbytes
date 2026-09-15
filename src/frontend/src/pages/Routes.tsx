@@ -13,9 +13,11 @@ import Card from '../components/Card';
 import Badge from '../components/Badge';
 import EmptyState from '../components/EmptyState';
 import type { Route } from '../data/mockData';
+import { routes as mockRoutes } from '../data/mockData';
 import { fetchRoutes } from '../data/api';
 import { useApi } from '../utils/useApi';
 import { useDataRefresh } from '../context/DataRefreshContext';
+import { useDemoMode } from '../context/DemoModeContext';
 import { routeStatusColor } from '../utils/badges';
 import styles from './Routes.module.css';
 
@@ -49,14 +51,17 @@ function sortRoutes(list: Route[], key: SortKey, dir: SortDir): Route[] {
 export default function RoutesPage() {
   const navigate = useNavigate();
   const { refreshKey } = useDataRefresh();
-  const { data: routes, loading } = useApi(fetchRoutes, refreshKey);
+  const { demoMode } = useDemoMode();
+  const { data: apiRoutes, loading: apiLoading } = useApi(fetchRoutes, refreshKey);
+  const routes  = demoMode ? mockRoutes : apiRoutes;
+  const loading = demoMode ? false : apiLoading;
   const radarData = makeRadarData(routes ?? []);
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<StatusFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('onTimeRate');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
-  if (!loading && !routes) {
+  if (!demoMode && !loading && !routes) {
     return <div style={{ padding: 24 }}><EmptyState page="routes" /></div>;
   }
 

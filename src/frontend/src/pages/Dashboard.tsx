@@ -15,20 +15,41 @@ import {
   fetchKpi, fetchVehicles, fetchTrips, fetchRoutes,
   fetchMlScores,
 } from '../data/api';
+import { vehicles as mockVehicles, trips as mockTrips, routes as mockRoutes } from '../data/mockData';
 import { useApi } from '../utils/useApi';
 import { useDataRefresh } from '../context/DataRefreshContext';
+import { useDemoMode } from '../context/DemoModeContext';
 import { riskBadge, statusBadge, tripStatusBadge } from '../utils/badges';
 import styles from './Dashboard.module.css';
 
+// Static KPI derived from mock data
+const mockKpi = {
+  totalVehicles:  mockVehicles.length,
+  activeVehicles: mockVehicles.filter(v => v.status === 'active').length,
+  delayedTrips:   mockTrips.filter(t => t.status === 'delayed').length,
+  highRiskTrips:  mockTrips.filter(t => t.risk === 'high' || t.risk === 'critical').length,
+  fleetEfficiency: Math.round(mockVehicles.reduce((s, v) => s + v.efficiency, 0) / mockVehicles.length),
+  fuelSavings: 0,
+  onTimeRate: Math.round(mockRoutes.reduce((s, r) => s + r.onTimeRate, 0) / mockRoutes.length),
+  avgTripDuration: 0,
+};
+
 export default function Dashboard() {
   const { refreshKey } = useDataRefresh();
-  const { data: kpiData, loading: kpiLoading } = useApi(fetchKpi, refreshKey);
-  const { data: vehicles, loading: vLoading }  = useApi(() => fetchVehicles(), refreshKey);
-  const { data: trips,    loading: tLoading }  = useApi(() => fetchTrips({ limit: '20' }), refreshKey);
-  const { data: routes,   loading: rLoading }  = useApi(fetchRoutes, refreshKey);
-  const { data: mlScores }                     = useApi(() => fetchMlScores({ entity_type: 'vehicle' }), refreshKey);
+  const { demoMode } = useDemoMode();
 
-  const loading = kpiLoading || vLoading || tLoading || rLoading;
+  const { data: kpiApi,   loading: kpiLoading } = useApi(fetchKpi, refreshKey);
+  const { data: vApi,     loading: vLoading }   = useApi(() => fetchVehicles(), refreshKey);
+  const { data: tApi,     loading: tLoading }   = useApi(() => fetchTrips({ limit: '20' }), refreshKey);
+  const { data: rApi,     loading: rLoading }   = useApi(fetchRoutes, refreshKey);
+  const { data: mlScores }                      = useApi(() => fetchMlScores({ entity_type: 'vehicle' }), refreshKey);
+
+  const kpiData = demoMode ? mockKpi      : kpiApi;
+  const vehicles = demoMode ? mockVehicles : vApi;
+  const trips    = demoMode ? mockTrips    : tApi;
+  const routes   = demoMode ? mockRoutes   : rApi;
+
+  const loading = !demoMode && (kpiLoading || vLoading || tLoading || rLoading);
   const noData  = !loading && !kpiData;
 
   if (loading) {

@@ -2,11 +2,12 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Truck, Route, Navigation,
   BarChart3, MessageSquareText, Bell, RefreshCw, MapPin,
-  Database, LogOut, ChevronDown,
+  Database, LogOut, ChevronDown, FlaskConical,
 } from 'lucide-react';
 import { useState } from 'react';
 import logoSrc from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
+import { useDemoMode } from '../context/DemoModeContext';
 import styles from './TopNav.module.css';
 
 const navItems = [
@@ -38,10 +39,11 @@ function usePageTitle() {
 }
 
 export default function TopNav() {
-  const pageTitle = usePageTitle();
+  const pageTitle  = usePageTitle();
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { demoMode, toggleDemo } = useDemoMode();
 
   function handleLogout() {
     logout();
@@ -88,9 +90,17 @@ export default function TopNav() {
 
       {/* Right actions */}
       <div className={styles.actions}>
-        <div className={styles.liveTag}>
-          <span className={styles.liveDot} />
-          Live
+        <button
+          className={`${styles.demoBtn} ${demoMode ? styles.demoBtnOn : ''}`}
+          onClick={toggleDemo}
+          title={demoMode ? 'Exit Demo Mode — use real data' : 'Enter Demo Mode — use sample data'}
+        >
+          <FlaskConical size={13} />
+          <span>{demoMode ? 'Demo ON' : 'Demo'}</span>
+        </button>
+        <div className={demoMode ? styles.demoTag : styles.liveTag}>
+          <span className={demoMode ? styles.demoDot : styles.liveDot} />
+          {demoMode ? 'Demo' : 'Live'}
         </div>
         <button className={styles.iconBtn} title="Refresh" onClick={() => window.location.reload()}>
           <RefreshCw size={14} />

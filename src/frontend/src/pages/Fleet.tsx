@@ -10,9 +10,11 @@ import Badge from '../components/Badge';
 import FuelGauge from '../components/FuelGauge';
 import EmptyState from '../components/EmptyState';
 import type { Vehicle, VehicleStatus } from '../data/mockData';
+import { vehicles as mockVehicles } from '../data/mockData';
 import { fetchVehicles } from '../data/api';
 import { useApi } from '../utils/useApi';
 import { useDataRefresh } from '../context/DataRefreshContext';
+import { useDemoMode } from '../context/DemoModeContext';
 import { riskBadge, statusBadge } from '../utils/badges';
 import styles from './Fleet.module.css';
 
@@ -38,7 +40,10 @@ function sortVehicles(list: Vehicle[], key: SortKey, dir: SortDir): Vehicle[] {
 export default function Fleet() {
   const navigate = useNavigate();
   const { refreshKey } = useDataRefresh();
-  const { data: vehicles, loading } = useApi(() => fetchVehicles(), refreshKey);
+  const { demoMode } = useDemoMode();
+  const { data: apiVehicles, loading: apiLoading } = useApi(() => fetchVehicles(), refreshKey);
+  const vehicles = demoMode ? mockVehicles : apiVehicles;
+  const loading  = demoMode ? false : apiLoading;
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<FilterType>('all');
   const [sortKey, setSortKey] = useState<SortKey>('risk');
@@ -54,7 +59,7 @@ export default function Fleet() {
     }
   };
 
-  if (!loading && !vehicles) {
+  if (!demoMode && !loading && !vehicles) {
     return <div style={{ padding: 24 }}><EmptyState page="fleet" /></div>;
   }
 

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { type ReactNode } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataRefreshProvider } from './context/DataRefreshContext';
+import { DemoModeProvider } from './context/DemoModeContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Fleet from './pages/Fleet';
@@ -38,6 +39,7 @@ export default function App() {
   return (
     <AuthProvider>
       <DataRefreshProvider>
+      <DemoModeProvider>
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
@@ -64,6 +66,7 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </DemoModeProvider>
       </DataRefreshProvider>
     </AuthProvider>
   );
