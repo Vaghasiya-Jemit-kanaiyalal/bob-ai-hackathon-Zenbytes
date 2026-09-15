@@ -1,0 +1,423 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.breadLink {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent);
+  transition: opacity 0.15s;
+}
+.breadLink:hover { opacity: 0.75; }
+
+.breadCurrent {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Hero ── */
+.hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+}
+
+.heroLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.vehicleIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.heroPlate {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.heroSub {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.heroBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.engineBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.heroRight {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+}
+
+.heroStat {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+/* ── KPI row ── */
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.kpi {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpiIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kpiVal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.kpiLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── Tab card ── */
+.tabCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+/* ── Overview grid ── */
+.overviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Info list ── */
+.infoList {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 20px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.infoRow:last-child { border-bottom: none; }
+
+.infoRow span:first-child {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.infoRow span:last-child {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 11.5px !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ── Driver section ── */
+.driverHero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.driverAvatarLg {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.driverName { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.driverRoute { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── Compliance banner ── */
+.complianceBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 12.5px;
+  color: var(--success);
+  background: var(--success-dim);
+  border-top: 1px solid var(--border);
+}
+
+/* ── Live status ── */
+.liveGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 16px 20px;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.liveStat { display: flex; flex-direction: column; gap: 5px; }
+.liveLabel { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.liveVal { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+.fuelSection {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fuelSectionLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.locationWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.locationUpdate { color: var(--text-muted); }
+
+/* ── Trip table ── */
+.tripsTableWrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+
+.table { width: 100%; border-collapse: collapse; }
+
+.table th {
+  padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap; background: var(--bg-surface); border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 10px 14px; font-size: 12.5px; color: var(--text-primary);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover td { background: var(--bg-hover); }
+
+.tripId { font-weight: 700; color: var(--accent); font-size: 12px; }
+.bold { font-weight: 600; }
+.muted { color: var(--text-secondary); }
+
+/* ── Fuel charts ── */
+.fuelCharts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chartWrap { padding: 16px 20px; }
+
+/* ── Maintenance timeline ── */
+.maintenanceList {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 16px 20px;
+}
+
+.maintenanceRow {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.maintenanceRow:last-child { padding-bottom: 0; }
+
+.maintenanceDate {
+  width: 90px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.maintenanceDateVal { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.maintenanceId { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+
+.maintenanceDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+  position: relative;
+  z-index: 1;
+}
+
+.maintenanceDot::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  width: 2px;
+  height: calc(100% + 14px);
+  background: var(--border);
+}
+
+.maintenanceRow:last-child .maintenanceDot::after { display: none; }
+
+.maintenanceBody { flex: 1; min-width: 0; }
+
+.maintenanceHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.maintenanceType { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+
+.maintenanceDesc { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 6px; }
+
+.maintenanceMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.maintenanceMeta span { display: flex; align-items: center; gap: 4px; }
+
+.maintenanceCost { color: var(--accent); font-weight: 600; }
+
+.maintenanceNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--warning);
+  background: var(--warning-dim);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.maintenanceScheduled {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* ── Not found ── */
+.notFound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 8px;
+  text-align: center;
+}
+
+.notFoundTitle { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.notFoundSub { font-size: 13px; color: var(--text-muted); }
+
+.backBtn {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 12px; padding: 8px 16px;
+  background: var(--accent-dim); color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 8px;
+  font-size: 13px; cursor: pointer; transition: opacity 0.15s;
+}
+.backBtn:hover { opacity: 0.8; }

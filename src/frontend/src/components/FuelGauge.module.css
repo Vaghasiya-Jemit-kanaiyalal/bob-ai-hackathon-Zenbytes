@@ -1,0 +1,26 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.track {
+  flex: 1;
+  background: var(--border);
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.label {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 34px;
+  text-align: right;
+}

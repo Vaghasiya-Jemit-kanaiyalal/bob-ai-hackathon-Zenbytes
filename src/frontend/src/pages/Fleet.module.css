@@ -1,30 +1,57 @@
-.page {
+.page { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Summary tiles ── */
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.summaryTile {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
 }
 
-.toolbar {
+.summaryTile:hover { background: var(--bg-hover); }
+.summaryTile.summaryActive { border-color: var(--accent); background: var(--accent-dim); }
+
+.summaryIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.searchWrap {
-  position: relative;
-  flex: 1;
-  min-width: 220px;
-  max-width: 320px;
+.summaryValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
 }
 
-.searchIcon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
+.summaryLabel {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
+
+/* ── Toolbar ── */
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.searchWrap { position: relative; flex: 1; min-width: 220px; max-width: 340px; }
+
+.searchIcon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
 .search {
   width: 100%;
@@ -37,91 +64,122 @@
   outline: none;
   transition: border-color 0.15s;
 }
-
 .search:focus { border-color: var(--accent); }
 .search::placeholder { color: var(--text-muted); }
 
-.filters {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.toolbarRight { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
 .filterBtn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12.5px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s;
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 11px; border-radius: 20px; font-size: 12.5px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
 }
-
 .filterBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
 .filterBtn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-.count {
-  background: var(--bg-surface);
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-}
+.count { background: var(--bg-surface); padding: 1px 6px; border-radius: 10px; font-size: 11px; font-weight: 600; }
 
+.divider { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+
+.viewBtn {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+}
+.viewBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.viewBtn.viewActive { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* ── Table ── */
 .tableWrap { overflow-x: auto; }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
+.table { width: 100%; border-collapse: collapse; }
 
 .table th {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
+  padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap; background: var(--bg-surface); border-bottom: 1px solid var(--border);
 }
 
 .table td {
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+  padding: 10px 14px; font-size: 13px; color: var(--text-primary);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
 }
 
 .table tbody tr:last-child td { border-bottom: none; }
 .table tbody tr:hover td { background: var(--bg-hover); }
 
+.sortable { cursor: pointer; user-select: none; }
+.sortable:hover { background: var(--bg-card) !important; }
+.sortable span { margin-right: 4px; }
+
+.clickable { cursor: pointer; }
+
 .plate { font-weight: 600; font-size: 13px; }
 .sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.driverName { font-size: 13px; }
 .muted { color: var(--text-secondary); font-size: 12.5px; }
 
-.fuelRow { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.empty { text-align: center; padding: 32px; color: var(--text-muted); font-size: 13px; }
 
-.fuelBar {
-  width: 52px;
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
+/* ── Grid view ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
 }
 
-.fuelFill { height: 100%; border-radius: 2px; }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.card:hover { border-color: var(--accent); background: var(--bg-hover); }
 
-.empty {
-  text-align: center;
-  padding: 32px;
-  color: var(--text-muted);
-  font-size: 13px;
+.cardTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.cardPlate { font-weight: 700; font-size: 15px; color: var(--text-primary); }
+.cardSub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.cardBadges { display: flex; gap: 4px; flex-shrink: 0; }
+
+.cardDriver { display: flex; align-items: center; gap: 10px; }
+
+.driverAvatar {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent-dim); color: var(--accent);
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardStats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: var(--bg-surface); border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.cardStat {
+  padding: 8px 12px; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.cardStat:last-child { border-right: none; }
+
+.cardStatVal { font-size: 16px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+.cardStatLabel { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+.cardFuel { display: flex; align-items: center; gap: 8px; }
+.cardFuelLabel { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+.cardLocation { font-size: 11.5px; color: var(--text-muted); }
+
+.emptyGrid {
+  grid-column: 1 / -1;
+  text-align: center; padding: 48px;
+  color: var(--text-muted); font-size: 13px;
 }
