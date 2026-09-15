@@ -1,8 +1,7 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, ChevronRight, MapPin, Clock, Package, Truck,
-  CheckCircle2, AlertTriangle, XCircle, Navigation,
-  Fuel, User,
+  ArrowLeft, ChevronRight, Truck,
+  Navigation, User,
 } from 'lucide-react';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
@@ -12,29 +11,11 @@ import { useApi } from '../utils/useApi';
 import { tripStatusBadge, riskBadge } from '../utils/badges';
 import styles from './TripDetail.module.css';
 
-const timelineEventStyle: Record<string, { color: string; bg: string; icon: React.ReactNode }> = {
-  departure:  { color: 'var(--accent)',   bg: 'var(--accent-dim)',   icon: <Truck size={13} />        },
-  arrival:    { color: 'var(--success)',  bg: 'var(--success-dim)',  icon: <CheckCircle2 size={13} /> },
-  delivery:   { color: 'var(--success)',  bg: 'var(--success-dim)',  icon: <Package size={13} />      },
-  delay:      { color: 'var(--warning)',  bg: 'var(--warning-dim)',  icon: <Clock size={13} />        },
-  incident:   { color: 'var(--danger)',   bg: 'var(--danger-dim)',   icon: <AlertTriangle size={13} />},
-  refuel:     { color: 'var(--purple)',   bg: 'var(--purple-dim)',   icon: <Fuel size={13} />         },
-  checkpoint: { color: 'var(--text-muted)', bg: 'var(--bg-hover)',  icon: <MapPin size={13} />       },
-};
-
-const deliveryStatusStyle: Record<string, { color: string; bg: string; label: string; icon: React.ReactNode }> = {
-  pending:   { color: 'var(--text-muted)', bg: 'var(--bg-hover)',    label: 'Pending',   icon: <Clock size={12} />        },
-  delivered: { color: 'var(--success)',    bg: 'var(--success-dim)', label: 'Delivered', icon: <CheckCircle2 size={12} /> },
-  failed:    { color: 'var(--danger)',     bg: 'var(--danger-dim)',  label: 'Failed',    icon: <XCircle size={12} />      },
-  partial:   { color: 'var(--warning)',    bg: 'var(--warning-dim)', label: 'Partial',   icon: <AlertTriangle size={12} />},
-};
-
 export default function TripDetail() {
   const { id }    = useParams<{ id: string }>();
   const navigate  = useNavigate();
   const { data: tripsData, loading } = useApi(() => fetchTrips({ limit: '200' }));
   const trip = tripsData?.find(t => t.id === id);
-  const detail = undefined; // detailed delivery stops not available from DB yet
 
   if (loading) {
     return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'var(--text-muted)' }}>Loading…</div>;

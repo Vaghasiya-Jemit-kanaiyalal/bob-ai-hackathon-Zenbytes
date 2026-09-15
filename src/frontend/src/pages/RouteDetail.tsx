@@ -13,9 +13,8 @@ import Card from '../components/Card';
 import Badge from '../components/Badge';
 import TabBar from '../components/TabBar';
 import StatRow from '../components/StatRow';
-import {
-  routes, routeDetails, trips, vehicles,
-} from '../data/mockData';
+import { fetchRoute } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { routeStatusColor, riskBadge, tripStatusBadge } from '../utils/badges';
 import styles from './RouteDetail.module.css';
 
@@ -54,16 +53,27 @@ export default function RouteDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabId>('overview');
+  const { data: route, loading } = useApi(() => fetchRoute(id!));
 
-  const route  = routes.find(r => r.id === id);
-  const detail = id ? routeDetails[id] : undefined;
+  // Detail data not available from DB; show empty waypoint/segment data
+  const detail = route ? {
+    description: `Route ${id}`, zone: '—', startHub: '—', endHub: '—',
+    avgActualDuration: route.avgDuration, peakDelayHour: '—', lastUpdated: '—',
+    weeklyTrips: route.dailyTrips * 7, weeklyIncidents: route.incidents,
+    avgFuelPerTrip: 0, co2PerTrip: 0,
+    waypoints: [], segments: [], hourlyDelay: [], weeklyOnTime: [], riskFactors: [],
+  } : undefined;
+
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'var(--text-muted)' }}>Loading…</div>;
+  }
 
   if (!route || !detail) {
     return (
       <div className={styles.notFound}>
         <Navigation size={40} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
         <div className={styles.notFoundTitle}>Route not found</div>
-        <div className={styles.notFoundSub}>No route with ID "{id}" exists.</div>
+        <div className={styles.notFoundSub}>No route with ID "{id}" exists in the database.</div>
         <button className={styles.backBtn} onClick={() => navigate('/routes')}>
           <ArrowLeft size={14} /> Back to Routes
         </button>
@@ -72,8 +82,8 @@ export default function RouteDetail() {
   }
 
   const sc = routeStatusColor(route.status);
-  const activeVehicles = vehicles.filter(v => v.route.startsWith(id ?? ''));
-  const activeTrips    = trips.filter(t => t.route.startsWith(id ?? ''));
+  const activeVehicles: unknown[] = [];
+  const activeTrips:    unknown[] = [];
   const avgDelay = detail.hourlyDelay.reduce((s, h) => s + h.delay, 0) / detail.hourlyDelay.length;
   const efficiencyScore = Math.max(0, Math.round(route.onTimeRate - (route.incidents * 5)));
   const scheduledVsActual = detail.segments.map(s => ({
