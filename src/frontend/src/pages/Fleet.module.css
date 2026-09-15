@@ -1,0 +1,127 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.search {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px 8px 32px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search:focus { border-color: var(--accent); }
+.search::placeholder { color: var(--text-muted); }
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filterBtn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.filterBtn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+.count {
+  background: var(--bg-surface);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tableWrap { overflow-x: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td { border-bottom: none; }
+.table tbody tr:hover td { background: var(--bg-hover); }
+
+.plate { font-weight: 600; font-size: 13px; }
+.sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.muted { color: var(--text-secondary); font-size: 12.5px; }
+
+.fuelRow { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+
+.fuelBar {
+  width: 52px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fuelFill { height: 100%; border-radius: 2px; }
+
+.empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
