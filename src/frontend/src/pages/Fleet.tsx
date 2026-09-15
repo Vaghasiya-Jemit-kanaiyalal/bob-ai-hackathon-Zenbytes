@@ -8,7 +8,7 @@ import {
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import FuelGauge from '../components/FuelGauge';
-import { vehicles as mockVehicles } from '../data/mockData';
+import EmptyState from '../components/EmptyState';
 import type { Vehicle, VehicleStatus } from '../data/mockData';
 import { fetchVehicles } from '../data/api';
 import { useApi } from '../utils/useApi';
@@ -36,7 +36,7 @@ function sortVehicles(list: Vehicle[], key: SortKey, dir: SortDir): Vehicle[] {
 
 export default function Fleet() {
   const navigate = useNavigate();
-  const { data: vehicles } = useApi(() => fetchVehicles(), mockVehicles);
+  const { data: vehicles, loading } = useApi(() => fetchVehicles());
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<FilterType>('all');
   const [sortKey, setSortKey] = useState<SortKey>('risk');
@@ -52,8 +52,12 @@ export default function Fleet() {
     }
   };
 
+  if (!loading && !vehicles) {
+    return <div style={{ padding: 24 }}><EmptyState /></div>;
+  }
+
   const filtered = sortVehicles(
-    vehicles.filter(v => {
+    (vehicles ?? []).filter(v => {
       const matchStatus = filter === 'all' || v.status === filter;
       const q = search.toLowerCase();
       const matchSearch = !q
@@ -68,11 +72,11 @@ export default function Fleet() {
   );
 
   const counts = {
-    all:         vehicles.length,
-    active:      vehicles.filter(v => v.status === 'active').length,
-    idle:        vehicles.filter(v => v.status === 'idle').length,
-    maintenance: vehicles.filter(v => v.status === 'maintenance').length,
-    offline:     vehicles.filter(v => v.status === 'offline').length,
+    all:         (vehicles ?? []).length,
+    active:      (vehicles ?? []).filter(v => v.status === 'active').length,
+    idle:        (vehicles ?? []).filter(v => v.status === 'idle').length,
+    maintenance: (vehicles ?? []).filter(v => v.status === 'maintenance').length,
+    offline:     (vehicles ?? []).filter(v => v.status === 'offline').length,
   };
 
   function SortIcon({ col }: { col: SortKey }) {

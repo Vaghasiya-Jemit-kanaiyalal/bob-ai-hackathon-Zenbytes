@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Package, Clock, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
-import { trips as mockTrips, tripDetails } from '../data/mockData';
+import EmptyState from '../components/EmptyState';
 import type { TripStatus, RiskLevel } from '../data/mockData';
 import { fetchTrips } from '../data/api';
 import { useApi } from '../utils/useApi';
@@ -15,12 +15,16 @@ type RiskFilter   = 'all' | RiskLevel;
 
 export default function Trips() {
   const navigate = useNavigate();
-  const { data: trips } = useApi(() => fetchTrips({ limit: '100' }), mockTrips);
+  const { data: trips, loading } = useApi(() => fetchTrips({ limit: '100' }));
   const [search,     setSearch]     = useState('');
   const [statusFilter, setStatus]   = useState<StatusFilter>('all');
   const [riskFilter,   setRisk]     = useState<RiskFilter>('all');
 
-  const filtered = trips.filter(t => {
+  if (!loading && !trips) {
+    return <div style={{ padding: 24 }}><EmptyState /></div>;
+  }
+
+  const filtered = (trips ?? []).filter(t => {
     const matchStatus = statusFilter === 'all' || t.status === statusFilter;
     const matchRisk   = riskFilter   === 'all' || t.risk   === riskFilter;
     const q = search.toLowerCase();
@@ -35,11 +39,11 @@ export default function Trips() {
   });
 
   const statusCounts: Record<StatusFilter, number> = {
-    all:           trips.length,
-    'in-progress': trips.filter(t => t.status === 'in-progress').length,
-    delayed:       trips.filter(t => t.status === 'delayed').length,
-    completed:     trips.filter(t => t.status === 'completed').length,
-    cancelled:     trips.filter(t => t.status === 'cancelled').length,
+    all:           (trips ?? []).length,
+    'in-progress': (trips ?? []).filter(t => t.status === 'in-progress').length,
+    delayed:       (trips ?? []).filter(t => t.status === 'delayed').length,
+    completed:     (trips ?? []).filter(t => t.status === 'completed').length,
+    cancelled:     (trips ?? []).filter(t => t.status === 'cancelled').length,
   };
 
   return (

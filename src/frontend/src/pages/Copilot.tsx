@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Zap, RefreshCw, Sparkles } from 'lucide-react';
+import { sendCopilotMessage } from '../data/api';
 import styles from './Copilot.module.css';
 
 interface Message {
@@ -11,22 +12,14 @@ interface Message {
 
 const suggestedQuestions = [
   'Which vehicles are currently at highest risk?',
-  'What is causing delays on the Bronx Corridor?',
-  'Recommend the most efficient route for JFK deliveries.',
-  'Show me fuel consumption patterns for this week.',
-  'Which drivers need safety coaching based on today\'s data?',
+  'What is the fleet status summary?',
+  'Show me delayed trips and their details.',
+  'Analyze fuel consumption patterns.',
+  'Which drivers need safety coaching?',
   'What routes can be optimized to reduce delays?',
-  'Summarize the fleet status for the last 24 hours.',
-  'How can we improve the on-time rate for R-22?',
+  'Show ML risk analysis scores.',
+  'Give me an overview of route performance.',
 ];
-
-const stubReplies: Record<string, string> = {
-  default: `I'm Bob, your YatraDrishti AI Copilot. I can analyze route performance, flag high-risk vehicles, suggest optimizations, and provide real-time fleet insights.
-
-**AI integration is coming soon.** Once connected to IBM watsonx.ai, I'll provide live, data-driven recommendations based on your fleet's actual telemetry.
-
-In the meantime, explore the Dashboard, Fleet, and Routes pages to see your fleet's current status.`,
-};
 
 function getTime() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -39,20 +32,21 @@ export default function Copilot() {
       role: 'assistant',
       content: `👋 Hello! I'm **Bob**, your YatraDrishti AI Copilot.
 
-I help fleet operators identify inefficient routes, delayed vehicles, and high-risk trips — reducing travel time, fuel consumption, and delivery delays.
+I answer questions using your **actual imported fleet data** from the MySQL database and ML analysis results.
 
 **What I can help with:**
-- 🚨 Real-time risk alerts and vehicle status
-- 📍 Route optimization recommendations
-- 📊 Efficiency and fuel analytics
-- 🧭 Trip delay root-cause analysis
+- 🚨 High-risk vehicles and safety alerts
+- 📍 Route performance and optimization
+- 📊 Fuel efficiency and cost analytics
+- 🕐 Delayed trips and root-cause analysis
 - 👨‍✈️ Driver behavior insights
+- 🤖 ML scoring results and recommendations
 
-*AI integration with IBM watsonx.ai is coming soon. Try one of the suggested questions below!*`,
+*Ask me anything about your fleet — I'll query your real data to answer!*`,
       time: getTime(),
     },
   ]);
-  const [input, setInput] = useState('');
+  const [input,   setInput]   = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -60,32 +54,48 @@ I help fleet operators identify inefficient routes, delayed vehicles, and high-r
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  function sendMessage(text: string) {
+  async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
     const userMsg: Message = { id: Date.now(), role: 'user', content: text, time: getTime() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
 
-    setTimeout(() => {
-      const reply = stubReplies.default;
+    try {
+      const reply = await sendCopilotMessage(text);
+      const content = reply ??
+        `I couldn't connect to the fleet database right now. Please ensure:\n` +
+        `1. The backend is running (port 4000)\n` +
+        `2. MySQL is connected and data has been imported\n` +
+        `3. You are authenticated\n\n` +
+        `Try uploading fleet data via the **Data Center** page first.`;
+
       setMessages(prev => [
         ...prev,
-        { id: Date.now() + 1, role: 'assistant', content: reply, time: getTime() },
+        { id: Date.now() + 1, role: 'assistant', content, time: getTime() },
       ]);
+    } catch {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: 'An error occurred while querying fleet data. Please try again.',
+          time: getTime(),
+        },
+      ]);
+    } finally {
       setLoading(false);
-    }, 900 + Math.random() * 600);
+    }
   }
 
   function formatContent(text: string) {
-    // Simple markdown-ish formatting
     return text
       .split('\n')
       .map((line, i) => {
         if (line.startsWith('**') && line.endsWith('**')) {
           return <p key={i} className={styles.bold}>{line.replace(/\*\*/g, '')}</p>;
         }
-        // Bold inline
         const parts = line.split(/\*\*(.*?)\*\*/g);
         return (
           <p key={i} className={styles.para}>
@@ -111,7 +121,7 @@ I help fleet operators identify inefficient routes, delayed vehicles, and high-r
                 <div className={styles.msgContent}>{formatContent(msg.content)}</div>
                 <div className={styles.msgTime}>{msg.time}</div>
               </div>
-              {msg.role === 'user' && <div className={styles.userAvatar}>OP</div>}
+              {msg.role === 'user' && <div className={styles.userAvatar}>You</div>}
             </div>
           ))}
           {loading && (
@@ -130,7 +140,7 @@ I help fleet operators identify inefficient routes, delayed vehicles, and high-r
         <div className={styles.inputArea}>
           <input
             className={styles.input}
-            placeholder="Ask Bob about your fleet…"
+            placeholder="Ask Bob about your fleet data…"
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
@@ -168,13 +178,15 @@ I help fleet operators identify inefficient routes, delayed vehicles, and high-r
         <div className={styles.infoBox}>
           <div className={styles.infoTitle}>About Bob Copilot</div>
           <p className={styles.infoText}>
-            Bob is powered by IBM watsonx.ai and trained on urban fleet telemetry, traffic patterns, and logistics optimization models.
+            Bob answers using your <strong>real fleet data</strong> imported via the Data Center —
+            querying MySQL for KPIs, vehicle risk, delays, fuel stats, and ML analysis results.
           </p>
           <p className={styles.infoText}>
-            <strong>Integration status:</strong> <span style={{ color: 'var(--warning)' }}>Coming soon</span>
+            <strong>Data source:</strong>{' '}
+            <span style={{ color: 'var(--success)' }}>MySQL + ML Service</span>
           </p>
           <div className={styles.infoTags}>
-            <span className={styles.tag}>watsonx.ai</span>
+            <span className={styles.tag}>Real Data</span>
             <span className={styles.tag}>Fleet ML</span>
             <span className={styles.tag}>Route Opt.</span>
           </div>

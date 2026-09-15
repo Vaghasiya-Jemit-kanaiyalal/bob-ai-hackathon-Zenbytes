@@ -7,7 +7,8 @@ import {
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import StatRow from '../components/StatRow';
-import { trips, tripDetails } from '../data/mockData';
+import { fetchTrips } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { tripStatusBadge, riskBadge } from '../utils/badges';
 import styles from './TripDetail.module.css';
 
@@ -31,16 +32,20 @@ const deliveryStatusStyle: Record<string, { color: string; bg: string; label: st
 export default function TripDetail() {
   const { id }    = useParams<{ id: string }>();
   const navigate  = useNavigate();
+  const { data: tripsData, loading } = useApi(() => fetchTrips({ limit: '200' }));
+  const trip = tripsData?.find(t => t.id === id);
+  const detail = undefined; // detailed delivery stops not available from DB yet
 
-  const trip   = trips.find(t => t.id === id);
-  const detail = id ? tripDetails[id] : undefined;
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'var(--text-muted)' }}>Loading…</div>;
+  }
 
-  if (!trip || !detail) {
+  if (!trip) {
     return (
       <div className={styles.notFound}>
         <Navigation size={40} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
         <div className={styles.notFoundTitle}>Trip not found</div>
-        <div className={styles.notFoundSub}>No trip detail available for ID "{id}".</div>
+        <div className={styles.notFoundSub}>No trip found for ID "{id}". It may have been imported with a different ID.</div>
         <button className={styles.backBtn} onClick={() => navigate('/trips')}>
           <ArrowLeft size={14} /> Back to Trips
         </button>
@@ -50,15 +55,6 @@ export default function TripDetail() {
 
   const ts = tripStatusBadge(trip.status);
   const rb = riskBadge(trip.risk);
-  const deliveryPct  = Math.round((detail.deliveredPackages / detail.totalPackages) * 100);
-  const progressPct  = detail.actualDistance && detail.scheduledDistance
-    ? Math.min(100, Math.round((detail.actualDistance / detail.scheduledDistance) * 100))
-    : 0;
-
-  const allDelivered  = detail.stops.every(s => s.status === 'delivered');
-  const anyFailed     = detail.stops.some(s => s.status === 'failed');
-  const anyPartial    = detail.stops.some(s => s.status === 'partial');
-  const totalWeight   = detail.stops.reduce((s, st) => s + st.weight, 0);
 
   return (
     <div className={styles.page}>
@@ -77,26 +73,20 @@ export default function TripDetail() {
           </div>
           <div>
             <div className={styles.heroId}>{trip.id}</div>
-            <div className={styles.heroRoute}>{detail.routeName} &nbsp;·&nbsp; {trip.origin} → {trip.destination}</div>
-            <div className={styles.heroMeta}>{detail.date} &nbsp;·&nbsp; Depart {trip.startTime}{detail.endTime ? ` · Arrived ${detail.endTime}` : ''}</div>
+            <div className={styles.heroRoute}>{trip.route} &nbsp;·&nbsp; {trip.origin} → {trip.destination}</div>
+            <div className={styles.heroMeta}>{trip.date} &nbsp;·&nbsp; Depart {trip.startTime}</div>
             <div className={styles.heroBadges}>
               <Badge {...ts} />
               <Badge {...rb} />
-              {allDelivered && <Badge label="All Delivered" color="var(--success)" bg="var(--success-dim)" />}
-              {anyFailed    && <Badge label="Failed Stops"  color="var(--danger)"  bg="var(--danger-dim)"  />}
-              {anyPartial   && <Badge label="Partial"       color="var(--warning)" bg="var(--warning-dim)" />}
             </div>
           </div>
         </div>
         <div className={styles.heroRight}>
-          <div className={styles.heroStat}><Truck size={13} /> {detail.plate} — {detail.vehicleId}</div>
-          <div className={styles.heroStat}><User size={13} /> {detail.driver}</div>
+          <div className={styles.heroStat}><Truck size={13} /> {trip.plate} — {trip.vehicleId}</div>
+          <div className={styles.heroStat}><User size={13} /> {trip.driver}</div>
           <div className={styles.heroStat}><Navigation size={13} />
-            <Link to={`/routes/${detail.routeId}`} className={styles.routeLink}>
-              {detail.routeId} — {detail.routeName}
-            </Link>
+            <span>{trip.route}</span>
           </div>
-          <div className={styles.heroStat}><Package size={13} /> {detail.totalPackages} packages · {totalWeight} kg</div>
         </div>
       </div>
 
@@ -104,7 +94,7 @@ export default function TripDetail() {
       <div className={styles.progressCard}>
         <div className={styles.progressHeader}>
           <div className={styles.progressLabel}>
-            Trip Progress — {detail.actualDistance?.toFixed(1) ?? '0'} / {detail.scheduledDistance} km
+            Trip Distance — {trip.distance} km · ETA {trip.eta}
           </div>
           <div className={styles.progressRight}>
             {trip.delay > 0
@@ -117,129 +107,40 @@ export default function TripDetail() {
           <div
             className={styles.progressFill}
             style={{
-              width: `${progressPct}%`,
+              width: trip.status === 'completed' ? '100%' : trip.status === 'in-progress' ? '60%' : '40%',
               background: trip.status === 'completed' ? 'var(--success)' : trip.delay > 0 ? 'var(--warning)' : 'var(--accent)',
             }}
           />
-        </div>
-        <div className={styles.progressStops}>
-          {detail.stops.map(stop => {
-            const ds = deliveryStatusStyle[stop.status];
-            const pct = (stop.seq / detail.stops.length) * 100;
-            return (
-              <div key={stop.seq} className={styles.progressStop} style={{ left: `${pct}%` }}>
-                <div className={styles.stopMarker} style={{ background: ds.color }} />
-                <div className={styles.stopLabel}>{stop.seq}</div>
-              </div>
-            );
-          })}
         </div>
       </div>
 
       {/* Stats */}
       <StatRow
         stats={[
-          { label: 'Packages Total',    value: detail.totalPackages                                              },
-          { label: 'Delivered',         value: detail.deliveredPackages, color: 'var(--success)'                },
-          { label: 'Delivery Rate',     value: `${deliveryPct}%`,        color: deliveryPct === 100 ? 'var(--success)' : deliveryPct > 50 ? 'var(--warning)' : 'var(--danger)' },
-          { label: 'Failed',            value: detail.failedPackages,    color: detail.failedPackages > 0 ? 'var(--danger)' : 'var(--text-muted)' },
-          { label: 'Total Weight',      value: `${totalWeight} kg`                                               },
-          { label: 'Avg Speed',         value: `${detail.avgSpeed} km/h`                                         },
-          { label: 'Max Speed',         value: `${detail.maxSpeed} km/h`, color: detail.maxSpeed > 90 ? 'var(--danger)' : 'var(--text-primary)' },
-          { label: 'Idle Time',         value: `${detail.idleTime} min`,  color: detail.idleTime > 20 ? 'var(--warning)' : 'var(--text-primary)' },
-          { label: 'Fuel Used',         value: `${detail.fuelUsed} L`                                            },
-          { label: 'Sched. Duration',   value: `${detail.scheduledDuration} min`                                 },
+          { label: 'Distance',      value: `${trip.distance} km`                               },
+          { label: 'Duration',      value: `${trip.duration ?? '—'} min`                       },
+          { label: 'Fuel Used',     value: trip.fuelUsed != null ? `${trip.fuelUsed} L` : '—'  },
+          { label: 'Delay',         value: trip.delay > 0 ? `+${trip.delay} min` : 'On time',
+            color: trip.delay > 0 ? 'var(--danger)' : 'var(--success)'                         },
+          { label: 'Vehicle',       value: trip.plate                                           },
+          { label: 'Driver',        value: trip.driver                                          },
+          { label: 'Route',         value: trip.route                                           },
+          { label: 'Date',          value: trip.date ?? '—'                                     },
         ]}
-        columns={10}
+        columns={8}
       />
-
-      {/* Two-column: Delivery stops + Timeline */}
-      <div className={styles.mainGrid}>
-        {/* Delivery stops */}
-        <Card title={`Delivery Stops (${detail.stops.length})`}>
-          <div className={styles.stopsList}>
-            {detail.stops.map(stop => {
-              const ds = deliveryStatusStyle[stop.status];
-              return (
-                <div key={stop.seq} className={styles.stopRow}>
-                  <div className={styles.stopSeq} style={{ background: ds.bg, color: ds.color }}>
-                    {stop.seq}
-                  </div>
-                  <div className={styles.stopBody}>
-                    <div className={styles.stopHeader}>
-                      <span className={styles.stopAddress}>{stop.address}</span>
-                      <Badge label={ds.label} color={ds.color} bg={ds.bg} />
-                    </div>
-                    <div className={styles.stopRecipient}>{stop.recipient}</div>
-                    <div className={styles.stopMeta}>
-                      <span><Package size={11} /> {stop.packages} pkg · {stop.weight} kg</span>
-                      <span><Clock size={11} /> Sched: {stop.scheduledTime}</span>
-                      {stop.actualTime && (
-                        <span style={{ color: stop.delay > 0 ? 'var(--danger)' : 'var(--success)' }}>
-                          Actual: {stop.actualTime}{stop.delay > 0 ? ` (+${stop.delay} min)` : ''}
-                        </span>
-                      )}
-                      {stop.proofOfDelivery && (
-                        <span style={{ color: 'var(--success)' }}>
-                          <CheckCircle2 size={11} /> Proof captured
-                        </span>
-                      )}
-                    </div>
-                    {stop.notes && (
-                      <div className={styles.stopNote}>
-                        <AlertTriangle size={11} /> {stop.notes}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Timeline */}
-        <Card title="Trip Timeline">
-          <div className={styles.timeline}>
-            {detail.timeline.map((ev, i) => {
-              const es = timelineEventStyle[ev.type];
-              return (
-                <div key={i} className={styles.timelineRow}>
-                  <div className={styles.timelineLeft}>
-                    <div className={styles.timelineTime}>{ev.time}</div>
-                  </div>
-                  <div className={styles.timelineLine}>
-                    <div className={styles.timelineIcon} style={{ color: es.color, background: es.bg }}>
-                      {es.icon}
-                    </div>
-                    {i < detail.timeline.length - 1 && <div className={styles.timelineConnector} />}
-                  </div>
-                  <div className={styles.timelineBody}>
-                    <div className={styles.timelineTitle}>{ev.title}</div>
-                    <div className={styles.timelineDesc}>{ev.description}</div>
-                    {ev.location && (
-                      <div className={styles.timelineLoc}>
-                        <MapPin size={11} /> {ev.location}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </div>
 
       {/* Vehicle & driver quick link */}
       <Card title="Vehicle & Driver">
         <div className={styles.vehicleQuick}>
           <div className={styles.vehicleQuickLeft}>
-            <div className={styles.vehicleAvatar}>{detail.driver.split(' ').map(n => n[0]).join('')}</div>
+            <div className={styles.vehicleAvatar}>{trip.driver.split(' ').map(n => n[0]).join('')}</div>
             <div>
-              <div className={styles.vehicleName}>{detail.driver}</div>
-              <div className={styles.vehiclePlate}>{detail.plate} · {detail.vehicleId}</div>
+              <div className={styles.vehicleName}>{trip.driver}</div>
+              <div className={styles.vehiclePlate}>{trip.plate} · {trip.vehicleId}</div>
             </div>
           </div>
-          <button className={styles.vehicleLink} onClick={() => navigate(`/fleet/${detail.vehicleId}`)}>
+          <button className={styles.vehicleLink} onClick={() => navigate(`/fleet/${trip.vehicleId}`)}>
             <Truck size={13} /> View Vehicle Details
           </button>
         </div>

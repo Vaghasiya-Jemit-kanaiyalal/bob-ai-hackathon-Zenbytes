@@ -215,3 +215,106 @@
   .brand { margin-right: 12px; }
   .liveTag { display: none; }
 }
+
+/* ── User menu ──────────────────────────────────────────────────────────── */
+.userMenu {
+  position: relative;
+}
+
+.userBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 2px 8px 2px 2px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.userBtn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.userName {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  color: rgba(255,255,255,0.6);
+  transition: transform 0.15s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 210px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.dropUser {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.dropEmail {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.dropRole {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}
+
+.dropItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s;
+  text-align: left;
+}
+
+.dropItem:hover {
+  background: var(--bg-hover);
+  color: var(--danger);
+}

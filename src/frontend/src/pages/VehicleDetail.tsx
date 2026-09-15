@@ -14,12 +14,8 @@ import Badge from '../components/Badge';
 import TabBar from '../components/TabBar';
 import StatRow from '../components/StatRow';
 import FuelGauge from '../components/FuelGauge';
-import {
-  vehicles,
-  vehicleTripHistories,
-  vehicleFuelHistories,
-  vehicleMaintenanceHistories,
-} from '../data/mockData';
+import { fetchVehicle } from '../data/api';
+import { useApi } from '../utils/useApi';
 import { riskBadge, statusBadge, tripStatusBadge } from '../utils/badges';
 import styles from './VehicleDetail.module.css';
 
@@ -70,8 +66,15 @@ export default function VehicleDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabId>('overview');
+  const { data: vehicle, loading } = useApi(() => fetchVehicle(id!));
 
-  const vehicle = vehicles.find(v => v.id === id);
+  const tripHistory    = [] as unknown[];
+  const fuelHistory    = [] as unknown[];
+  const maintHistory   = [] as unknown[];
+
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 300, color: 'var(--text-muted)' }}>Loading…</div>;
+  }
   if (!vehicle) {
     return (
       <div className={styles.notFound}>
@@ -85,9 +88,7 @@ export default function VehicleDetail() {
     );
   }
 
-  const tripHistory    = vehicleTripHistories[vehicle.id]    ?? [];
-  const fuelHistory    = vehicleFuelHistories[vehicle.id]    ?? [];
-  const maintenance    = vehicleMaintenanceHistories[vehicle.id] ?? [];
+  const maintenance    = maintHistory;
 
   const rb = riskBadge(vehicle.risk);
   const sb = statusBadge(vehicle.status);

@@ -1,15 +1,15 @@
 /**
  * useApi — lightweight hook that fetches data from the API client on mount.
- * Initial state is always the mock fallback so the UI renders immediately.
- * When the API responds the state updates live; if the API fails the mock persists.
+ * Pass a `refreshKey` to trigger a re-fetch when the value changes.
+ * Returns `{ data, loading }` where data is null when no real data exists yet.
  */
 import { useState, useEffect } from 'react';
 
 export function useApi<T>(
-  fetcher: () => Promise<T>,
-  initial: T,
-): { data: T; loading: boolean } {
-  const [data, setData]       = useState<T>(initial);
+  fetcher: () => Promise<T | null>,
+  refreshKey?: unknown,
+): { data: T | null; loading: boolean } {
+  const [data,    setData]    = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,11 +17,11 @@ export function useApi<T>(
     setLoading(true);
     fetcher()
       .then(result => { if (!cancelled) setData(result); })
-      .catch(() => {/* mock already set as initial */})
+      .catch(() => { if (!cancelled) setData(null); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshKey]);
 
   return { data, loading };
 }

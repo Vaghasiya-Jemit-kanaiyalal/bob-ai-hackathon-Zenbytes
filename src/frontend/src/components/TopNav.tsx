@@ -1,27 +1,32 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Truck, Route, Navigation,
   BarChart3, MessageSquareText, Bell, RefreshCw, MapPin,
+  Database, LogOut, ChevronDown,
 } from 'lucide-react';
+import { useState } from 'react';
 import logoSrc from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
 import styles from './TopNav.module.css';
 
 const navItems = [
-  { to: '/',          icon: LayoutDashboard,   label: 'Dashboard'    },
-  { to: '/fleet',     icon: Truck,             label: 'Fleet'        },
-  { to: '/routes',    icon: Route,             label: 'Routes'       },
-  { to: '/trips',     icon: Navigation,        label: 'Trips'        },
-  { to: '/analytics', icon: BarChart3,         label: 'Analytics'    },
-  { to: '/copilot',   icon: MessageSquareText, label: 'AI Copilot'   },
+  { to: '/',             icon: LayoutDashboard,   label: 'Dashboard'    },
+  { to: '/fleet',        icon: Truck,             label: 'Fleet'        },
+  { to: '/routes',       icon: Route,             label: 'Routes'       },
+  { to: '/trips',        icon: Navigation,        label: 'Trips'        },
+  { to: '/analytics',    icon: BarChart3,         label: 'Analytics'    },
+  { to: '/data-center',  icon: Database,          label: 'Data Center'  },
+  { to: '/copilot',      icon: MessageSquareText, label: 'AI Copilot'   },
 ];
 
 const pageTitles: Record<string, string> = {
-  '/':          'Dashboard',
-  '/fleet':     'Fleet Management',
-  '/routes':    'Route Performance',
-  '/trips':     'Trip History',
-  '/analytics': 'Analytics',
-  '/copilot':   'AI Copilot',
+  '/':             'Dashboard',
+  '/fleet':        'Fleet Management',
+  '/routes':       'Route Performance',
+  '/trips':        'Trip History',
+  '/analytics':    'Analytics',
+  '/data-center':  'Data Center',
+  '/copilot':      'AI Copilot',
 };
 
 function usePageTitle() {
@@ -34,6 +39,18 @@ function usePageTitle() {
 
 export default function TopNav() {
   const pageTitle = usePageTitle();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  function handleLogout() {
+    logout();
+    navigate('/login');
+  }
+
+  const initials = user?.name
+    ? user.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)
+    : 'YD';
 
   return (
     <header className={styles.nav}>
@@ -75,14 +92,41 @@ export default function TopNav() {
           <span className={styles.liveDot} />
           Live
         </div>
-        <button className={styles.iconBtn} title="Refresh">
+        <button className={styles.iconBtn} title="Refresh" onClick={() => window.location.reload()}>
           <RefreshCw size={14} />
         </button>
         <button className={styles.iconBtn} title="Notifications">
           <Bell size={14} />
-          <span className={styles.badge}>3</span>
         </button>
-        <div className={styles.avatar}>YD</div>
+
+        {/* User menu */}
+        <div className={styles.userMenu}>
+          <button
+            className={styles.userBtn}
+            onClick={() => setMenuOpen(v => !v)}
+            title={user?.name ?? 'User'}
+          >
+            <div className={styles.avatar}>{initials}</div>
+            <span className={styles.userName}>{user?.name ?? 'User'}</span>
+            <ChevronDown size={12} className={`${styles.chevron} ${menuOpen ? styles.chevronOpen : ''}`} />
+          </button>
+          {menuOpen && (
+            <>
+              <div className={styles.menuOverlay} onClick={() => setMenuOpen(false)} />
+              <div className={styles.dropdown}>
+                <div className={styles.dropUser}>
+                  <div className={styles.dropName}>{user?.name}</div>
+                  <div className={styles.dropEmail}>{user?.email}</div>
+                  <div className={styles.dropRole}>{user?.role}</div>
+                </div>
+                <button className={styles.dropItem} onClick={() => { setMenuOpen(false); handleLogout(); }}>
+                  <LogOut size={14} />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

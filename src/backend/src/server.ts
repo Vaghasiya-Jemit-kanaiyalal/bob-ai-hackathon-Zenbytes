@@ -2,7 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { testConnection } from './db';
+import { authMiddleware } from './middleware/auth';
 
+import authRouter       from './routes/auth';
 import vehiclesRouter   from './routes/vehicles';
 import routesRouter     from './routes/routes';
 import tripsRouter      from './routes/trips';
@@ -10,6 +12,8 @@ import maintenanceRouter from './routes/maintenance';
 import analyticsRouter  from './routes/analytics';
 import riskRouter       from './routes/risk';
 import mlRouter         from './routes/ml';
+import importRouter     from './routes/import';
+import copilotRouter    from './routes/copilot';
 
 const app  = express();
 const PORT = parseInt(process.env.PORT ?? '4000', 10);
@@ -26,19 +30,27 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// ─── Health check ────────────────────────────────────────────────────────────
+// ─── Health check (public) ───────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
   res.json({ ok: true, ts: new Date().toISOString() });
 });
 
-// ─── API routes ──────────────────────────────────────────────────────────────
-app.use('/api/vehicles',    vehiclesRouter);
-app.use('/api/routes',      routesRouter);
-app.use('/api/trips',       tripsRouter);
-app.use('/api/maintenance', maintenanceRouter);
-app.use('/api/analytics',   analyticsRouter);
-app.use('/api/risk',        riskRouter);
-app.use('/api/ml',          mlRouter);
+// ─── Auth routes (public — no JWT required) ───────────────────────────────────
+app.use('/api/auth', authRouter);
+
+// ─── Import sample download (public) ─────────────────────────────────────────
+app.get('/api/import/sample', importRouter);
+
+// ─── Protected API routes ────────────────────────────────────────────────────
+app.use('/api/vehicles',    authMiddleware, vehiclesRouter);
+app.use('/api/routes',      authMiddleware, routesRouter);
+app.use('/api/trips',       authMiddleware, tripsRouter);
+app.use('/api/maintenance', authMiddleware, maintenanceRouter);
+app.use('/api/analytics',   authMiddleware, analyticsRouter);
+app.use('/api/risk',        authMiddleware, riskRouter);
+app.use('/api/ml',          authMiddleware, mlRouter);
+app.use('/api/import',      authMiddleware, importRouter);
+app.use('/api/copilot',     authMiddleware, copilotRouter);
 
 // ─── 404 catch-all ───────────────────────────────────────────────────────────
 app.use((_req, res) => {

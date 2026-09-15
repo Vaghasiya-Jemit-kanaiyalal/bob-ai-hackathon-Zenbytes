@@ -4,28 +4,19 @@ import {
   BarChart, Bar,
   LineChart, Line,
   PieChart, Pie, Cell,
-  ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
 } from 'recharts';
-import {
-  delayTrend     as mockDelayTrend,
-  fuelConsumption as mockFuel,
-  vehicleUtilization as mockVehicleUtil,
-  riskDistribution   as mockRiskDist,
-} from '../data/mockData';
 import {
   fetchDelayTrend,
   fetchFuelConsumption,
   fetchRiskDistribution,
   fetchVehicleUtilization,
   fetchMlScores,
-  mockMlScores,
-  trafficVsDelayData,
-  routeEfficiencyData,
 } from '../data/api';
 import { useApi } from '../utils/useApi';
 import MlScoresPanel from '../components/MlScoresPanel';
+import EmptyState from '../components/EmptyState';
 import styles from './Analytics.module.css';
 
 // ─── Shared tooltip style ────────────────────────────────────────────────────
@@ -78,13 +69,21 @@ function scoreColour(score: number) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Analytics() {
-  const { data: delayTrend }        = useApi(fetchDelayTrend,          mockDelayTrend);
-  const { data: fuelConsumption }   = useApi(fetchFuelConsumption,     mockFuel);
-  const { data: riskDistribution }  = useApi(fetchRiskDistribution,    mockRiskDist);
-  const { data: vehicleUtilization }= useApi(fetchVehicleUtilization,  mockVehicleUtil);
-  const { data: mlScores }          = useApi(() => fetchMlScores(),    mockMlScores);
-  const routeEfficiency  = routeEfficiencyData;
-  const trafficVsDelay   = trafficVsDelayData;
+  const { data: delayTrend }        = useApi(fetchDelayTrend);
+  const { data: fuelConsumption }   = useApi(fetchFuelConsumption);
+  const { data: riskDistributionRaw } = useApi(fetchRiskDistribution);
+  const { data: vehicleUtilization }  = useApi(fetchVehicleUtilization);
+  const { data: mlScores }            = useApi(() => fetchMlScores());
+
+  const riskDistribution = (riskDistributionRaw ?? []).map(d => ({
+    ...d,
+    name: d.event_type,
+    fill: d.event_type === 'speeding' ? 'var(--danger)' :
+          d.event_type === 'hard_braking' ? 'var(--warning)' :
+          d.event_type === 'sharp_cornering' ? 'var(--purple)' :
+          d.event_type === 'idle_excess' ? 'var(--accent)' :
+          d.event_type === 'lane_departure' ? '#f97316' : 'var(--text-muted)',
+  }));
 
   const riskTotal = riskDistribution.reduce((s, d) => s + d.value, 0);
 
@@ -114,32 +113,21 @@ export default function Analytics() {
         <Card
           title="Delay Trends by Route — Last 30 Days (min)"
           className={styles.span2}
-          action={<span className={styles.chipMuted}>Mock · replace with ML forecast</span>}
         >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={230}>
-              <LineChart data={delayTrend} margin={{ top: 8, right: 20, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  axisLine={false} tickLine={false}
-                  interval={2}
-                />
-                <YAxis
-                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  axisLine={false} tickLine={false}
-                  unit=" m"
-                />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Line type="monotone" dataKey="R01" name="Route 01" stroke="var(--accent)"   strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="R02" name="Route 02" stroke="var(--success)"  strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="R03" name="Route 03" stroke="var(--purple)"   strokeWidth={2} dot={false} strokeDasharray="5 3" />
-                <Line type="monotone" dataKey="R04" name="Route 04" stroke="var(--warning)"  strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          {delayTrend && delayTrend.length > 0 ? (
+            <div className={styles.chartWrap}>
+              <ResponsiveContainer width="100%" height={230}>
+                <LineChart data={delayTrend} margin={{ top: 8, right: 20, bottom: 0, left: -10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} interval={2} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} unit=" m" />
+                  <Tooltip {...tip} />
+                  <Legend wrapperStyle={legendStyle} />
+                  <Line type="monotone" dataKey="avg_delay" name="Avg Delay (min)" stroke="var(--accent)" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : <EmptyState message="No delay data yet" />}
         </Card>
 
         {/* 2. On-time + efficiency dual area */}
@@ -192,199 +180,112 @@ export default function Analytics() {
       {/* ── Section label ──────────────────────────────────────────────────── */}
       <div className={styles.sectionLabel}>Fuel &amp; Route</div>
 
-      {/* ── Row 2: Fuel + Route efficiency ────────────────────────────────── */}
+      {/* ── Row 2: Fuel ──────────────────────────────────────────────────────── */}
       <div className={styles.row2}>
 
         {/* 3. Fuel consumption stacked bar */}
-        <Card
-          title="Fuel Consumption vs Savings — This Week (L)"
-          action={<span className={styles.chipMuted}>Mock · replace with IoT</span>}
-        >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={230}>
-              <BarChart data={fuelConsumption} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="day" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Bar dataKey="consumed" name="Consumed (L)" fill="var(--accent)"  radius={[4, 4, 0, 0]} />
-                <Bar dataKey="saved"    name="Saved (L)"    fill="var(--success)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+        <Card title="Fuel Consumption — This Week (L)">
+          {fuelConsumption && fuelConsumption.length > 0 ? (
+            <div className={styles.chartWrap}>
+              <ResponsiveContainer width="100%" height={230}>
+                <BarChart data={fuelConsumption} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="day" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip {...tip} />
+                  <Legend wrapperStyle={legendStyle} />
+                  <Bar dataKey="consumed" name="Consumed (L)" fill="var(--accent)"  radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : <EmptyState message="No fuel data yet — import CSV to see fuel analytics" />}
         </Card>
 
-        {/* 4. Route efficiency — horizontal bar + score badge */}
-        <Card
-          title="Route Efficiency — Planned vs Actual Distance (km)"
-          action={<span className={styles.chipMuted}>Mock · replace with GPS</span>}
-        >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={160}>
-              <BarChart
-                data={routeEfficiency}
-                layout="vertical"
-                margin={{ top: 4, right: 60, bottom: 0, left: 4 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} unit=" km" />
-                <YAxis type="category" dataKey="route" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} width={38} />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Bar dataKey="planned" name="Planned km" fill="var(--accent-dim)" radius={[0, 4, 4, 0]} />
-                <Bar dataKey="actual"  name="Actual km"  fill="var(--accent)"     radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-
-            {/* Score chips */}
-            <div className={styles.scoreGrid}>
-              {routeEfficiency.map(r => (
-                <div key={r.route} className={styles.scoreChip}>
-                  <span className={styles.scoreRouteName}>{r.route}</span>
-                  <span className={styles.scoreValue} style={{ color: scoreColour(r.score) }}>
-                    {r.score}
-                  </span>
-                </div>
-              ))}
+        {/* 4. Vehicle utilization */}
+        <Card title="Vehicle Utilization by Day (%)">
+          {vehicleUtilization && vehicleUtilization.length > 0 ? (
+            <div className={styles.chartWrap}>
+              <ResponsiveContainer width="100%" height={230}>
+                <BarChart data={vehicleUtilization} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="day" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" domain={[0, 100]} />
+                  <Tooltip {...tip} />
+                  <Legend wrapperStyle={legendStyle} />
+                  <Bar dataKey="active"      name="Active"      stackId="a" fill="var(--success)" />
+                  <Bar dataKey="in_progress" name="In Progress" stackId="a" fill="var(--warning)" />
+                  <Bar dataKey="delayed"     name="Delayed"     stackId="a" fill="var(--danger)"  radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          </div>
+          ) : <EmptyState message="No utilization data yet" />}
         </Card>
       </div>
 
       {/* ── Section label ──────────────────────────────────────────────────── */}
       <div className={styles.sectionLabel}>Fleet &amp; Risk</div>
 
-      {/* ── Row 3: Vehicle utilization + Risk distribution + Traffic vs delay */}
-      <div className={styles.row3}>
-
-        {/* 5. Vehicle utilization stacked bar */}
-        <Card
-          title="Vehicle Utilization by Day (%)"
-          action={<span className={styles.chipMuted}>Mock · replace with telematics</span>}
-        >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={230}>
-              <BarChart data={vehicleUtilization} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="day" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} unit="%" domain={[0, 100]} />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Bar dataKey="active"      name="Active"      stackId="a" fill="var(--success)" />
-                <Bar dataKey="idle"        name="Idle"        stackId="a" fill="var(--warning)" />
-                <Bar dataKey="maintenance" name="Maintenance" stackId="a" fill="var(--danger)"  radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
+      {/* ── Row 3: Risk distribution ─────────────────────────────────────────── */}
+      <div className={styles.row2}>
         {/* 6. Risk distribution donut */}
-        <Card
-          title="Risk Event Distribution — Last 7 Days"
-          action={<span className={styles.chipMuted}>Mock · replace with ML classifier</span>}
-        >
-          <div className={styles.riskWrap}>
-            <ResponsiveContainer width="100%" height={230}>
-              <PieChart>
-                <Pie
-                  data={riskDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={64}
-                  outerRadius={96}
-                  paddingAngle={3}
-                  dataKey="value"
-                  labelLine={false}
-                >
-                  {riskDistribution.map(entry => (
-                    <Cell key={entry.name} fill={entry.fill} stroke="transparent" />
-                  ))}
-                  <DonutLabel cx={0} cy={0} total={riskTotal} />
-                </Pie>
-                <Tooltip
-                  contentStyle={tip.contentStyle}
-                  labelStyle={tip.labelStyle}
-                  formatter={(value, name) => {
-                    const v = Number(value);
-                    return [`${v} events (${Math.round(v / riskTotal * 100)}%)`, String(name)];
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-
-            {/* Legend */}
-            <div className={styles.riskLegend}>
-              {riskDistribution.map(d => (
-                <div key={d.name} className={styles.riskLegendItem}>
-                  <span className={styles.riskDot} style={{ background: d.fill }} />
-                  <span className={styles.riskName}>{d.name}</span>
-                  <span className={styles.riskCount}>{d.value}</span>
-                </div>
-              ))}
+        <Card title="Risk Event Distribution — Last 7 Days">
+          {riskDistribution.length > 0 ? (
+            <div className={styles.riskWrap}>
+              <ResponsiveContainer width="100%" height={230}>
+                <PieChart>
+                  <Pie data={riskDistribution} cx="50%" cy="50%" innerRadius={64} outerRadius={96} paddingAngle={3} dataKey="value" labelLine={false}>
+                    {riskDistribution.map(entry => (
+                      <Cell key={entry.name} fill={entry.fill} stroke="transparent" />
+                    ))}
+                    <DonutLabel cx={0} cy={0} total={riskTotal} />
+                  </Pie>
+                  <Tooltip contentStyle={tip.contentStyle} labelStyle={tip.labelStyle}
+                    formatter={(value, name) => {
+                      const v = Number(value);
+                      return [`${v} events (${Math.round(v / riskTotal * 100)}%)`, String(name)];
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className={styles.riskLegend}>
+                {riskDistribution.map(d => (
+                  <div key={d.name} className={styles.riskLegendItem}>
+                    <span className={styles.riskDot} style={{ background: d.fill }} />
+                    <span className={styles.riskName}>{d.name}</span>
+                    <span className={styles.riskCount}>{d.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : <EmptyState message="No risk events in last 7 days" />}
         </Card>
 
-        {/* 7. Traffic vs Delay composed */}
-        <Card
-          title="Traffic Level vs Avg Delay — Today (24 h)"
-          action={<span className={styles.chipMuted}>Mock · replace with traffic API</span>}
-        >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={230}>
-              <ComposedChart data={trafficVsDelay} margin={{ top: 8, right: 16, bottom: 0, left: -10 }}>
-                <defs>
-                  <linearGradient id="gTraffic" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--warning)" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="var(--warning)" stopOpacity={0}    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis
-                  dataKey="hour"
-                  tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
-                  axisLine={false} tickLine={false}
-                  interval={3}
-                />
-                <YAxis
-                  yAxisId="left"
-                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  axisLine={false} tickLine={false}
-                  unit="%"
-                  domain={[0, 100]}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-                  axisLine={false} tickLine={false}
-                  unit=" m"
-                />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Area
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="traffic"
-                  name="Traffic %"
-                  stroke="var(--warning)"
-                  fill="url(#gTraffic)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="delay"
-                  name="Avg Delay (min)"
-                  stroke="var(--danger)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+        {/* ML breakdown */}
+        <Card title="ML Score Component Breakdown — Vehicles">
+          {mlScores && mlScores.length > 0 ? (
+            <div className={styles.chartWrap}>
+              <ResponsiveContainer width="100%" height={230}>
+                <BarChart
+                  data={(mlScores ?? []).filter(s => s.entity_type === 'vehicle').slice(0, 8).map(s => ({
+                    id: s.entity_id, Delay: s.delay_score, Fuel: s.fuel_score,
+                    Traffic: s.traffic_score, Behaviour: s.behaviour_score, Maintenance: s.maintenance_score,
+                  }))}
+                  margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="id" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 100]} />
+                  <Tooltip {...tip} />
+                  <Legend wrapperStyle={legendStyle} />
+                  <Bar dataKey="Delay"       fill="var(--warning)" stackId="a" />
+                  <Bar dataKey="Fuel"        fill="var(--accent)"  stackId="a" />
+                  <Bar dataKey="Traffic"     fill="var(--purple)"  stackId="a" />
+                  <Bar dataKey="Behaviour"   fill="var(--danger)"  stackId="a" />
+                  <Bar dataKey="Maintenance" fill="#f97316"        stackId="a" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : <EmptyState message="No ML scores yet — import CSV to run ML analysis" />}
         </Card>
       </div>
 
@@ -393,78 +294,9 @@ export default function Analytics() {
 
       {/* ── ML Scores Table ────────────────────────────────────────────────── */}
       <MlScoresPanel
-        scores={mlScores}
+        scores={mlScores ?? []}
         title="ML Risk Scores — Vehicles &amp; Active Trips"
       />
-
-      {/* ── ML component breakdown radar ──────────────────────────────────── */}
-      <div className={styles.row2}>
-        <Card
-          title="ML Score Component Breakdown — Vehicles"
-          action={<span className={styles.chipMuted}>Live from scoring engine</span>}
-        >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart
-                data={mlScores.filter(s => s.entity_type === 'vehicle').slice(0, 8).map(s => ({
-                  id:          s.entity_id,
-                  Delay:       s.delay_score,
-                  Fuel:        s.fuel_score,
-                  Traffic:     s.traffic_score,
-                  Behaviour:   s.behaviour_score,
-                  Maintenance: s.maintenance_score,
-                }))}
-                margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="id" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 100]} />
-                <Tooltip {...tip} />
-                <Legend wrapperStyle={legendStyle} />
-                <Bar dataKey="Delay"       fill="var(--warning)" stackId="a" />
-                <Bar dataKey="Fuel"        fill="var(--accent)"  stackId="a" />
-                <Bar dataKey="Traffic"     fill="var(--purple)"  stackId="a" />
-                <Bar dataKey="Behaviour"   fill="var(--danger)"  stackId="a" />
-                <Bar dataKey="Maintenance" fill="#f97316"        stackId="a" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        <Card
-          title="ML Risk Distribution — All Entities"
-          action={<span className={styles.chipMuted}>Live from scoring engine</span>}
-        >
-          <div className={styles.chartWrap}>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart
-                data={[
-                  { level: 'LOW',      count: mlScores.filter(s => s.risk_level === 'LOW').length,      color: 'var(--success)' },
-                  { level: 'MEDIUM',   count: mlScores.filter(s => s.risk_level === 'MEDIUM').length,   color: 'var(--warning)' },
-                  { level: 'HIGH',     count: mlScores.filter(s => s.risk_level === 'HIGH').length,     color: 'var(--danger)'  },
-                  { level: 'CRITICAL', count: mlScores.filter(s => s.risk_level === 'CRITICAL').length, color: '#ff0050'        },
-                ]}
-                margin={{ top: 8, right: 16, bottom: 0, left: -10 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="level" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip {...tip} />
-                <Bar dataKey="count" name="Entities" radius={[4, 4, 0, 0]}>
-                  {[
-                    { level: 'LOW',      fill: 'var(--success)' },
-                    { level: 'MEDIUM',   fill: 'var(--warning)' },
-                    { level: 'HIGH',     fill: 'var(--danger)'  },
-                    { level: 'CRITICAL', fill: '#ff0050'        },
-                  ].map(entry => (
-                    <Cell key={entry.level} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
 
     </div>
   );

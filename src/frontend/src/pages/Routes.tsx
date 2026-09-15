@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
-import { routes as mockRoutes } from '../data/mockData';
+import EmptyState from '../components/EmptyState';
 import type { Route } from '../data/mockData';
 import { fetchRoutes } from '../data/api';
 import { useApi } from '../utils/useApi';
@@ -47,12 +47,16 @@ function sortRoutes(list: Route[], key: SortKey, dir: SortDir): Route[] {
 
 export default function RoutesPage() {
   const navigate = useNavigate();
-  const { data: routes } = useApi(fetchRoutes, mockRoutes);
-  const radarData = makeRadarData(routes);
+  const { data: routes, loading } = useApi(fetchRoutes);
+  const radarData = makeRadarData(routes ?? []);
   const [search,  setSearch]  = useState('');
   const [filter,  setFilter]  = useState<StatusFilter>('all');
   const [sortKey, setSortKey] = useState<SortKey>('onTimeRate');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
+
+  if (!loading && !routes) {
+    return <div style={{ padding: 24 }}><EmptyState /></div>;
+  }
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -60,7 +64,7 @@ export default function RoutesPage() {
   };
 
   const filtered = sortRoutes(
-    routes.filter(r => {
+    (routes ?? []).filter(r => {
       const matchStatus = filter === 'all' || r.status === filter;
       const q = search.toLowerCase();
       const matchSearch = !q || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q);
@@ -70,10 +74,10 @@ export default function RoutesPage() {
   );
 
   const counts = {
-    all:       routes.length,
-    optimal:   routes.filter(r => r.status === 'optimal').length,
-    congested: routes.filter(r => r.status === 'congested').length,
-    disrupted: routes.filter(r => r.status === 'disrupted').length,
+    all:       (routes ?? []).length,
+    optimal:   (routes ?? []).filter(r => r.status === 'optimal').length,
+    congested: (routes ?? []).filter(r => r.status === 'congested').length,
+    disrupted: (routes ?? []).filter(r => r.status === 'disrupted').length,
   };
 
   function SortIcon({ col }: { col: SortKey }) {
