@@ -1,3 +1,6 @@
+
+
+
 # =============================================================================
 # HACKATHON SUBMISSION METADATA
 # =============================================================================
@@ -9,51 +12,69 @@
 # =============================================================================
 
 team:
-  name: ""                             # REQUIRED — e.g., "Orion Squad"
-  track: ""                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
+  name: "Zenbytes"                       # REQUIRED — e.g., "Orion Squad"
+  track: "Open"                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
   lead:
-    name: ""                           # REQUIRED — e.g., "Alice Chen"
-    email: ""                          # REQUIRED — e.g., "alice.chen@ibm.com"
+    name: "Jemit Vaghasiya"                # REQUIRED — e.g., "Alice Chen"
+    email: "24dcs145@charusat.edu.in"           # REQUIRED — e.g., "alice.chen@ibm.com"
   members:
-    - name: ""                         # REQUIRED — Team member 1
-      email: ""
-    - name: ""                         # Add more members by copying the two lines above
-      email: ""
-    - name: ""
-      email: ""
+    - name: "Jay Sohaliya"          # REQUIRED — Team member 1
+      email: "24dcs124@charusat.edu.in"
+    - name: "Yug Bhensadadiya"
+      email: "24dit005@charusat.edu.in"
+    - name: "Yug Bhungaliya"
+      email: "24dce018@charusat.edu.in"
 
 submission:
-  title: ""                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
+  title: "Urban Fleet Intelligence Copilot"   # REQUIRED — Project display name
 
-  problem_statement: >                 # REQUIRED — 1-3 sentences. What problem? Who has it?
-    Replace this text with a concise description of the real-world problem
-    your project addresses and who experiences it.
+  problem_statement: >                   # REQUIRED — 1-3 sentences. What problem? Who has it?
+    Urban fleet operators managing multiple vehicles, routes, and deliveries lack a unified,
+    intelligent way to detect inefficient routes, delayed vehicles, and high-risk trips in real time.
+    Dispatchers and fleet managers spend excessive time manually cross-referencing spreadsheets,
+    GPS logs, and trip records — resulting in increased fuel consumption, missed delivery windows,
+    and avoidable safety incidents. Without proactive ML-driven insights, problems are identified
+    only after they have already caused operational and financial damage.
 
-  solution_summary: >                  # REQUIRED — 1-3 sentences. What did you build?
-    Replace this text with a clear description of your solution
-    and how it addresses the problem above.
+  solution_summary: >                    # REQUIRED — 1-3 sentences. What did you build?
+    Urban Fleet Intelligence Copilot is an AI-powered fleet management platform that ingests
+    structured CSV trip data, runs an ML risk-scoring pipeline across every vehicle and trip,
+    and surfaces prioritised recommendations through an interactive dashboard and a natural-language
+    AI Copilot. Fleet managers upload a single CSV file to instantly receive risk scores, delay
+    analytics, fuel efficiency breakdowns, and actionable route optimisation advice — all powered
+    by a FastAPI ML service and an Express + MySQL backend, with IBM Bob embedded as the AI
+    Copilot interface.
 
-  key_features:                        # REQUIRED — List 3 to 5 specific features you implemented
-    - ""                               # e.g., "Real-time pipeline anomaly detection using watsonx.ai"
-    - ""
-    - ""
-    - ""                               # optional 4th
-    - ""                               # optional 5th
-
+  key_features:                          # REQUIRED — List 3 to 5 specific features you implemented
+    - "CSV-driven Fleet Import & ML Scoring: upload one CSV and instantly score every trip and vehicle with multi-factor ML risk levels (LOW / MEDIUM / HIGH / CRITICAL)"
+    - "Live Dashboard with KPI Tiles: total vehicles, active trips, delayed trips, high-risk alerts, fleet efficiency %, and on-time rate — all computed from uploaded data"
+    - "Analytics Page: delay trend lines, fuel consumption charts, vehicle utilisation breakdowns, risk event distribution donut, and per-vehicle ML score breakdown"
+    - "Demo Mode: one-click toggle in the nav bar loads a full Indian fleet dataset so the entire platform can be explored without any backend infrastructure"
+    - Chatbot for quick response based on DB
   tech_stack:
-    languages: []                      # REQUIRED — e.g., ["Python", "TypeScript"]
-    frameworks: []                     # e.g., ["FastAPI", "React"]
-    ibm_technologies: []               # e.g., ["watsonx.ai", "IBM Bob", "IBM Cloud Functions"]
-    databases: []                      # e.g., ["PostgreSQL", "Redis"]
-    other: []                          # e.g., ["Docker", "GitHub Actions", "Slack API"]
+    languages: ["TypeScript", "Python"]
+    frameworks: ["React 19", "Vite", "Express 4", "FastAPI"]
+    ibm_technologies: ["IBM Bob"]
+    databases: ["MySQL 8"]
+    other: ["Recharts", "Lucide React", "React Router v7", "JWT Authentication", "Multer", "NumPy", "SciPy"]
 
-  what_we_are_most_proud_of: >         # Optional but recommended — guides judges to your best work
-    Replace with what aspect of the submission you consider strongest
-    and want judges to pay special attention to.
+  what_we_are_most_proud_of: >           # Optional but recommended
+    The zero-to-insights pipeline — a fleet manager with no technical background can upload one
+    CSV file and within seconds see ML-scored risk levels for every vehicle and trip, a populated
+    analytics dashboard with delay trends and fuel charts, and get natural-language answers from
+    the IBM Bob AI Copilot about their specific imported data. The entire flow from raw CSV through
+    ML scoring to KPI dashboard to AI Q&A works end-to-end with a real Python ML service, a real
+    MySQL-backed REST API, and a real-time React frontend — all in a single cohesive product. The
+    Demo Mode ensures judges can explore every feature without any infrastructure setup.
 
-  known_limitations: >                 # Optional but recommended — be honest about gaps
-    Replace with any known limitations, incomplete features,
-    or shortcuts taken due to time constraints.
+  known_limitations: >                   # Optional but recommended — be honest about gaps
+    The ML scoring engine uses NumPy/SciPy heuristics (delay ratio, fuel deviation, traffic
+    penalty) rather than a trained neural network — scores are meaningful but not learned from
+    historical data. Demo Mode uses a static hardcoded Indian fleet dataset and does not update
+    with new uploads. The AI Copilot requires a running backend and MySQL connection; it falls
+    back to a helpful error message when offline. Vehicle locations shown in the fleet view are
+    from the imported CSV snapshot, not live GPS telemetry. JWT-based role-based access control
+    is scaffolded in the database schema but not yet enforced in the UI.
 
 # =============================================================================
 # ARTIFACT LOCATIONS
